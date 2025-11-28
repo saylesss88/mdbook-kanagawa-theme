@@ -1,0 +1,24 @@
+# Cargo / Rust
+debug/
+target/
+**/*.rs.bk
+
+# Optional: keep Cargo.lock tracked for a binary crate, so don't ignore it
+
+# Windows/MSVC
+*.pdb
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temp
+*.log
+tmp/
