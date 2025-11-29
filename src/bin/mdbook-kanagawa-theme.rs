@@ -9,6 +9,16 @@ fn main() {
     let pre = KanagawaTheme::new();
 
     let args: Vec<String> = std::env::args().collect();
+
+    // Human-friendly version flag
+    if args.get(1).map(|s| s.as_str()) == Some("--version")
+        || args.get(1).map(|s| s.as_str()) == Some("-V")
+    {
+        println!("{}", env!("CARGO_PKG_VERSION"));
+        process::exit(0);
+    }
+
+    // mdBook protocol: `supports <renderer>`
     if args.get(1).map(|s| s.as_str()) == Some("supports") {
         // Only support HTML
         let renderer = args.get(2).map(|s| s.as_str()).unwrap_or("html");
