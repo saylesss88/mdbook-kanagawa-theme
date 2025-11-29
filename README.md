@@ -1,14 +1,17 @@
 # mdbook-kanagawa-theme
 
-Still enables you to use whichever theme you prefer.
+This is not a full replacement for the built-in mdBook themes.  
+Instead, it provides a custom landing page that replaces `index.md` with a
+Kanagawa-inspired layout: side-by-side **Latest Posts** and **Recent Notes**,
+plus a **Popular Tags** card.
 
-This theme was created with and relies on:
-[mdbook-content-collections](https://crates.io/crates/mdbook-content-collections),
-and [mdbook-content-loader](https://crates.io/crates/mdbook-content-loader). And
-is a project to show some of their functionality.
+This theme was created with, and relies on:
 
-I'm still working out a bug that displays a random code block in a random place
-on the landing.
+- [mdbook-content-collections](https://crates.io/crates/mdbook-content-collections)
+- [mdbook-content-loader](https://crates.io/crates/mdbook-content-loader)
+
+It exists mainly to demonstrate how these preprocessors can be combined to build
+a blog-like landing page.
 
 ## Installation
 
@@ -16,7 +19,7 @@ on the landing.
 cargo install mdbook-kanagawa-theme
 ```
 
-Then in your `book.toml` add the following:
+Add the following to your `book.toml`:
 
 ```toml
 [preprocessor.content-collections]
@@ -28,6 +31,7 @@ after = ["content-collections"]
 
 [preprocessor.kanagawa-theme]
 renderers = ["html"]
+before = ["content-loader", "content-collections"]
 
 [output.html]
 additional-css = ["theme/kanagawa.css"]
@@ -39,7 +43,7 @@ With this:
 
 2. `mdbook-content-loader` injects `window.CONTENT_COLLECTIONS`.
 
-3. `mdbook-kanagawa-theme` overwrites index.md content with your landing page
+3. `mdbook-kanagawa-theme` overwrites `index.md` content with your landing page
    and writes `theme/kanagawa.css`.
 
 4. The default HTML backend picks up `theme/kanagawa.css` via `additional-css`.
@@ -50,3 +54,11 @@ adding the following to your `SUMMARY.md` as the first line:
 ```md
 [](index.md)
 ```
+
+Run `mdbook build`, and the theme is automatically injected and applied.
+
+## Light/Dark behavior
+
+`kanagawa.css` hooks into mdBook’s existing theme classes (`html.light`,
+`html.rust`, `html.coal`, `html.navy`), so the built-in theme dropdown still
+works.
