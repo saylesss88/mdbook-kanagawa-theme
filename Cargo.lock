@@ -182,6 +182,7 @@ dependencies = [
  "log",
  "mdbook-preprocessor",
  "semver",
+ "serde",
  "serde_json",
 ]
 
