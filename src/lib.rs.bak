@@ -3,6 +3,7 @@ use mdbook_preprocessor::{
     errors::Error,
     Preprocessor, PreprocessorContext,
 };
+use serde::Deserialize;
 use std::fs;
 use std::path::PathBuf;
 
@@ -20,12 +21,70 @@ impl KanagawaTheme {
     }
 }
 
+#[derive(Debug, Default, Deserialize)]
+struct KanagawaConfig {
+    /// Landing page main title
+    landing_title: Option<String>,
+    /// Landing page subtitle
+    landing_subtitle: Option<String>,
+
+    /// Column headers
+    header_latest: Option<String>,
+    header_notes: Option<String>,
+    header_tags: Option<String>,
+
+    /// Optional CSS import prepended to theme/kanagawa.css
+    css_import: Option<String>,
+
+    /// If true, don't write the built-in Kanagawa CSS at all
+    disable_builtin_css: Option<bool>,
+}
+
 impl Preprocessor for KanagawaTheme {
     fn name(&self) -> &str {
         "kanagawa-theme"
     }
 
     fn run(&self, ctx: &PreprocessorContext, mut book: Book) -> Result<Book, Error> {
+        // Older mdBook: use Config::get::<T>(key) rather than get_deserialized_opt.[web:11][web:20]
+        let cfg = KanagawaConfig {
+            landing_title: ctx
+                .config
+                .get::<String>("preprocessor.kanagawa-theme.landing_title")
+                .ok()
+                .flatten(),
+            landing_subtitle: ctx
+                .config
+                .get::<String>("preprocessor.kanagawa-theme.landing_subtitle")
+                .ok()
+                .flatten(),
+            header_latest: ctx
+                .config
+                .get::<String>("preprocessor.kanagawa-theme.header_latest")
+                .ok()
+                .flatten(),
+            header_notes: ctx
+                .config
+                .get::<String>("preprocessor.kanagawa-theme.header_notes")
+                .ok()
+                .flatten(),
+            header_tags: ctx
+                .config
+                .get::<String>("preprocessor.kanagawa-theme.header_tags")
+                .ok()
+                .flatten(),
+            css_import: ctx
+                .config
+                .get::<String>("preprocessor.kanagawa-theme.css_import")
+                .ok()
+                .flatten(),
+            disable_builtin_css: ctx
+                .config
+                .get::<bool>("preprocessor.kanagawa-theme.disable_builtin_css")
+                .ok()
+                .flatten(),
+        };
+
         let mut landing_injected = false;
 
         book.for_each_mut(|item| {
@@ -33,7 +92,7 @@ impl Preprocessor for KanagawaTheme {
                 if chapter.path.as_ref().and_then(|p| p.file_stem()) == Some("index".as_ref())
                     && !landing_injected
                 {
-                    chapter.content = LANDING_PAGE.to_string();
+                    chapter.content = build_landing_page(&cfg);
                     landing_injected = true;
                 }
             }
@@ -43,8 +102,11 @@ impl Preprocessor for KanagawaTheme {
         let theme_dir: PathBuf = ctx.root.join("theme");
         if let Err(e) = fs::create_dir_all(&theme_dir) {
             log::warn!("kanagawa-theme: failed to create theme dir: {e}");
-        } else if let Err(e) = fs::write(theme_dir.join("kanagawa.css"), KANAGAWA_CSS) {
-            log::warn!("kanagawa-theme: failed to write kanagawa.css: {e}");
+        } else if !cfg.disable_builtin_css.unwrap_or(false) {
+            let css = build_kanagawa_css(cfg.css_import.as_deref());
+            if let Err(e) = fs::write(theme_dir.join("kanagawa.css"), css) {
+                log::warn!("kanagawa-theme: failed to write kanagawa.css: {e}");
+            }
         }
 
         Ok(book)
@@ -55,9 +117,46 @@ impl Preprocessor for KanagawaTheme {
     }
 }
 
+fn build_landing_page(cfg: &KanagawaConfig) -> String {
+    let title = cfg.landing_title.as_deref().unwrap_or("mdTheme");
+    let subtitle = cfg
+        .landing_subtitle
+        .as_deref()
+        .unwrap_or("A dope landing powered by rust");
+
+    let header_latest = cfg.header_latest.as_deref().unwrap_or("Latest Posts");
+    let header_notes = cfg.header_notes.as_deref().unwrap_or("Recent Notes");
+    let header_tags = cfg.header_tags.as_deref().unwrap_or("Popular Tags");
+
+    let mut html = LANDING_PAGE_TEMPLATE.to_owned();
+    html = html.replace("{{LANDING_TITLE}}", title);
+    html = html.replace("{{LANDING_SUBTITLE}}", subtitle);
+    html = html.replace("{{HEADER_LATEST}}", header_latest);
+    html = html.replace("{{HEADER_NOTES}}", header_notes);
+    html = html.replace("{{HEADER_TAGS}}", header_tags);
+
+    html
+}
+
+fn build_kanagawa_css(css_import: Option<&str>) -> String {
+    let mut out = String::new();
+
+    // First, the built-in Kanagawa layout and default palette
+    out.push_str(KANAGAWA_CSS_BASE);
+
+    // Then, optionally override variables with Dracula
+    if let Some(path) = css_import {
+        out.push_str("\n@import url(\"");
+        out.push_str(path);
+        out.push_str("\");\n");
+    }
+
+    out
+}
+
 // Note: Handlebars {{...}} in here are just literal HTML, not evaluated;
-// the page is pure HTML + JS, which is fine for a custom landing page.
-const LANDING_PAGE: &str = r#"<!-- kanagawa landing -->
+// the page is pure HTML + JS, which is fine for a custom landing page.[web:3]
+const LANDING_PAGE_TEMPLATE: &str = r#"<!-- kanagawa landing -->
 <div class="wave-bg">
 <div class="wave"></div>
 <div class="wave"></div>
@@ -65,20 +164,20 @@ const LANDING_PAGE: &str = r#"<!-- kanagawa landing -->
 </div>
 
 <div class="landing">
-<h1 class="title">mdTheme</h1>
-<p class="subtitle">A dope landing powered by rust</p>
+<h1 class="title">{{LANDING_TITLE}}</h1>
+<p class="subtitle">{{LANDING_SUBTITLE}}</p>
 
 <div class="grid">
 <div class="card">
-<h2>Latest Posts</h2>
+<h2>{{HEADER_LATEST}}</h2>
 <div id="latest-posts"><em>Loading...</em></div>
 </div>
 <div class="card">
-<h2>Recent Notes</h2>
+<h2>{{HEADER_NOTES}}</h2>
 <div id="recent-notes"><em>Loading...</em></div>
 </div>
 <div class="card">
-<h2>Popular Tags</h2>
+<h2>{{HEADER_TAGS}}</h2>
 <div id="tag-cloud" class="tag-cloud"></div>
 </div>
 </div>
@@ -157,7 +256,7 @@ const LANDING_PAGE: &str = r#"<!-- kanagawa landing -->
 "#;
 
 // Bind palette to mdBook theme classes so the built-in theme toggle works.
-const KANAGAWA_CSS: &str = r#"html.coal,
+const KANAGAWA_CSS_BASE: &str = r#"html.coal,
 html.navy {
   --bg: #181616;
   --bg-alt: #1f1f1f;

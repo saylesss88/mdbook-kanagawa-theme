@@ -33,10 +33,10 @@ struct KanagawaConfig {
     header_notes: Option<String>,
     header_tags: Option<String>,
 
-    /// Optional CSS import prepended to theme/kanagawa.css
+    /// Optional CSS @import to prepend to theme/css/chrome.css
     css_import: Option<String>,
 
-    /// If true, don't write the built-in Kanagawa CSS at all
+    /// If true, don't write theme/css/chrome.css at all
     disable_builtin_css: Option<bool>,
 }
 
@@ -46,7 +46,7 @@ impl Preprocessor for KanagawaTheme {
     }
 
     fn run(&self, ctx: &PreprocessorContext, mut book: Book) -> Result<Book, Error> {
-        // Older mdBook: use Config::get::<T>(key) rather than get_deserialized_opt.[web:11][web:20]
+        // Read config from [preprocessor.kanagawa-theme] in book.toml
         let cfg = KanagawaConfig {
             landing_title: ctx
                 .config
@@ -85,8 +85,8 @@ impl Preprocessor for KanagawaTheme {
                 .flatten(),
         };
 
+        // Overwrite index.md with the landing page
         let mut landing_injected = false;
-
         book.for_each_mut(|item| {
             if let BookItem::Chapter(chapter) = item {
                 if chapter.path.as_ref().and_then(|p| p.file_stem()) == Some("index".as_ref())
@@ -98,14 +98,16 @@ impl Preprocessor for KanagawaTheme {
             }
         });
 
-        // Best-effort write CSS into <root>/theme/kanagawa.css
-        let theme_dir: PathBuf = ctx.root.join("theme");
-        if let Err(e) = fs::create_dir_all(&theme_dir) {
-            log::warn!("kanagawa-theme: failed to create theme dir: {e}");
-        } else if !cfg.disable_builtin_css.unwrap_or(false) {
-            let css = build_kanagawa_css(cfg.css_import.as_deref());
-            if let Err(e) = fs::write(theme_dir.join("kanagawa.css"), css) {
-                log::warn!("kanagawa-theme: failed to write kanagawa.css: {e}");
+        // Write theme/css/chrome.css to override the built-in theme.[web:19]
+        if !cfg.disable_builtin_css.unwrap_or(false) {
+            let css_dir: PathBuf = ctx.root.join("theme").join("css");
+            if let Err(e) = fs::create_dir_all(&css_dir) {
+                log::warn!("kanagawa-theme: failed to create theme/css dir: {e}");
+            } else {
+                let css = build_full_chrome_css(&cfg);
+                if let Err(e) = fs::write(css_dir.join("chrome.css"), css) {
+                    log::warn!("kanagawa-theme: failed to write theme/css/chrome.css: {e}");
+                }
             }
         }
 
@@ -138,22 +140,39 @@ fn build_landing_page(cfg: &KanagawaConfig) -> String {
     html
 }
 
-fn build_kanagawa_css(css_import: Option<&str>) -> String {
+/// Build a full chrome.css by taking a template copy of mdBook's chrome.css,
+/// injecting Kanagawa variables (and optional @import) at the top, and then
+/// appending any extra Kanagawa-specific CSS.
+fn build_full_chrome_css(cfg: &KanagawaConfig) -> String {
+    // This file should be created once by copying book/theme/css/chrome.css
+    // from a built mdBook into src/kanagawa_chrome_template.css.
+    let base = include_str!("kanagawa_chrome_template.css");
+
     let mut out = String::new();
 
-    if let Some(path) = css_import {
-        // User controls this path from book.toml, e.g. "theme/dracula.css"
+    // Optional @import (e.g. Dracula palette) must be at the very top.
+    if let Some(path) = cfg.css_import.as_deref() {
         out.push_str("@import url(\"");
         out.push_str(path);
         out.push_str("\");\n\n");
     }
 
-    out.push_str(KANAGAWA_CSS_BASE);
+    // Kanagawa theme variables for all built-in themes.
+    out.push_str(KANAGAWA_VARS);
+    out.push_str("\n\n");
+
+    // The original mdBook chrome.css template.
+    out.push_str(base);
+    out.push_str("\n\n");
+
+    // Extra Kanagawa-specific styles (waves, landing cards, etc.).
+    out.push_str(KANAGAWA_EXTRA_CSS);
+
     out
 }
 
 // Note: Handlebars {{...}} in here are just literal HTML, not evaluated;
-// the page is pure HTML + JS, which is fine for a custom landing page.[web:3]
+// the page is pure HTML + JS, which is fine for a custom landing page.
 const LANDING_PAGE_TEMPLATE: &str = r#"<!-- kanagawa landing -->
 <div class="wave-bg">
 <div class="wave"></div>
@@ -253,9 +272,15 @@ const LANDING_PAGE_TEMPLATE: &str = r#"<!-- kanagawa landing -->
 </style>
 "#;
 
-// Bind palette to mdBook theme classes so the built-in theme toggle works.
-const KANAGAWA_CSS_BASE: &str = r#"html.coal,
-html.navy {
+/// Theme variables: bind Kanagawa palette to mdBook theme classes.
+const KANAGAWA_VARS: &str = r#":root.coal,
+.coal,
+html.coal,
+body.coal,
+:root.navy,
+.navy,
+html.navy,
+body.navy {
   --bg: #181616;
   --bg-alt: #1f1f1f;
   --fg: #c5c9c5;
@@ -268,8 +293,14 @@ html.navy {
   --blue: #7fb4ca;
 }
 
+:root.light,
+.light,
 html.light,
-html.rust {
+body.light,
+:root.rust,
+.rust,
+html.rust,
+body.rust {
   --bg: #f5f5f5;
   --bg-alt: #e8e8e8;
   --fg: #283548;
@@ -281,12 +312,12 @@ html.rust {
   --red: #c4746e;
   --blue: #7fb4ca;
 }
+"#;
 
-body {
+/// Extra Kanagawa styles layered on top of mdBook's chrome.css.
+const KANAGAWA_EXTRA_CSS: &str = r#"body {
   background: var(--bg);
   color: var(--fg);
-  margin: 0;
-  font-family: system-ui, sans-serif;
 }
 
 a {

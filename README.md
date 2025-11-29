@@ -1,23 +1,27 @@
 # mdbook-kanagawa-theme
 
-This is not a full replacement for the built-in mdBook themes.  
-Instead, it provides a custom landing page that replaces `index.md` with a
-Kanagawa-inspired layout: side-by-side **Latest Posts** and **Recent Notes**,
-plus a **Popular Tags** card.
+`mdbook-kanagawa-theme` provides a Kanagawa-inspired **landing page** and **full
+visual theme override** for the HTML renderer.  
+It does not replace mdBook’s HTML backend, but it does replace the default
+`theme/css/chrome.css` with a Kanagawa-flavored version.
 
-The landing page is driven entirely by metadata from
-`mdbook-content-collections` and `mdbook-content-loader`, which together provide
-a `content-collections.json` file and a `window.CONTENT_COLLECTIONS` global in
-the rendered HTML. The goal of this crate is to demonstrate how those
-preprocessors can be combined to build a blog‑like front page for your book.​
+The theme dropdown still works but the themes have a slightly different look.
 
-This theme was created with, and relies on:
+The landing page replaces `index.md` with a side‑by‑side layout:
 
-- [mdbook-content-collections](https://crates.io/crates/mdbook-content-collections)
-- [mdbook-content-loader](https://crates.io/crates/mdbook-content-loader)
+- **Latest Posts**
+- **Recent Notes**
+- **Popular Tags**
 
-It exists mainly to demonstrate how these preprocessors can be combined to build
-a blog-like landing page.
+The content comes from:
+
+- [`mdbook-content-collections`](https://crates.io/crates/mdbook-content-collections)
+- [`mdbook-content-loader`](https://crates.io/crates/mdbook-content-loader)
+
+Together they generate `content-collections.json` and expose a
+`window.CONTENT_COLLECTIONS` global that this theme uses to render the cards.
+
+---
 
 ## Installation
 
@@ -25,7 +29,13 @@ a blog-like landing page.
 cargo install mdbook-kanagawa-theme
 ```
 
-Add the preprocessor and CSS to your `book.toml`:
+Version check:
+
+```bash
+mdbook-kanagawa-theme --version
+```
+
+Add the preprocessor to your `book.toml`:
 
 ```toml
 [book]
@@ -49,86 +59,121 @@ header_latest = "Latest posts"
 header_notes  = "Recent notes"
 header_tags   = "Popular tags"
 
-# Optional: have the generated theme/kanagawa.css import another palette
-# This path is relative to the compiled book root, same as additional-css.
+# Optional: prepend an @import to the generated theme/css/chrome.css
+# Path is relative to the built book root (same as other mdBook theme files).
 # css_import = "theme/dracula.css"
 
-# Optional: if true, the preprocessor will NOT write theme/kanagawa.css
+
+# Optional: if true, the preprocessor will NOT write theme/css/chrome.css
+# (use this if you want to maintain your own chrome.css instead)
 # disable_builtin_css = true
 
 [output.html]
-# Tell mdBook to load the CSS file that the preprocessor writes
-additional-css = ["theme/kanagawa.css"]
-default-theme = "coal"
+# Do NOT use additional-css for the main theme override.
+# default-theme still controls which theme class is set (rust, coal, navy, …)
+default-theme = "rust"
+preferred-dark-theme = "navy"
 ```
 
-As you can see above, all of these fields can be overridden. I'm still working
-on the custom `css_import` being rendered correctly, the flags work but with no
-change to appearance as of right now.
+On each build, the preprocessor:
 
-<details>
-<summary> ✔️ Click for example `dracula.css` </summary>
+1. Overwrites `index.md` with the Kanagawa landing page HTML.
+
+2. Writes `theme/css/chrome.css`, built from a template copy of mdBook’s own
+   `chrome.css` plus Kanagawa variables and extra styles.
+
+You do **not** need `additional-css = ["theme/kanagawa.css"]`; the theme is
+injected by replacing `theme/css/chrome.css` directly. This was required for the
+theme to be respected in the latest mdbook versions.
+
+---
+
+## Overriding the palette (Dracula, etc.)
+
+You can still override the color palette while keeping the Kanagawa layout.  
+The recommended way is to ship an extra CSS file and let `mdbook-kanagawa-theme`
+`@import` it at the top of `theme/css/chrome.css` via `css_import`.
+
+Example `theme/dracula.css` (simplified):
 
 ```css
 /* theme/dracula.css */
-
-/* Dark variants (coal/navy) use classic Dracula colors */
+:root,
 html.coal,
-html.navy {
-  --bg: #282a36; /* Dracula background */
-  --bg-alt: #44475a; /* current line */
-  --fg: #f8f8f2; /* foreground */
-  --fg-light: #cfcfd9; /* slightly dimmer foreground */
+body.coal,
+.coal,
+html.navy,
+body.navy,
+.navy,
+html.rust,
+body.rust,
+.rust,
+html.light,
+body.light,
+.light {
+  --bg: #282a36;
+  --bg-alt: #44475a;
+  --fg: #f8f8f2;
+  --fg-light: #cfcfd9;
 
   --wave-1: #282a36;
-  --wave-2: #343746; /* UI background lighter */
+  --wave-2: #343746;
   --wave-3: #44475a;
 
-  --accent: #bd93f9; /* purple */
-  --red: #ff5555;
-  --blue: #8be9fd; /* cyan */
-}
-
-/* Light variants can be a softer “inverted Dracula” feel */
-html.light,
-html.rust {
-  --bg: #f8f8f2;
-  --bg-alt: #e6e6df;
-  --fg: #282a36;
-  --fg-light: #44475a;
-
-  --wave-1: #f0efe6;
-  --wave-2: #e6e5dc;
-  --wave-3: #dcdad3;
-
-  --accent: #6272a4; /* comment/secondary tone */
+  --accent: #bd93f9;
   --red: #ff5555;
   --blue: #8be9fd;
 }
 
-/* Optional: tighten how links and cards look under Dracula */
+/* Optional: tweak links/cards */
 a {
   color: var(--accent);
 }
-
 a:hover {
   text-decoration: underline;
 }
-
 .card {
-  box-shadow: 0 0 22px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 22px rgba(0, 0, 0, 0.45);
 }
 ```
 
-Again, this is a WIP.
+And in `book.toml`:
 
-</details>
+```toml
+[preprocessor.kanagawa-theme]
+renderers = ["html"]
 
-### Preprocessor pipeline
+landing_title = "My mdBook"
+landing_subtitle = "Notes, posts, and more"
 
-`mdbook-kanagawa-theme` is meant to be part of a small preprocessor pipeline.
+header_latest = "Latest posts"
+header_notes = "Recent notes"
+header_tags = "Popular tags"
 
-A typical `book.toml` looks like this:
+css_import = "theme/dracula.css"
+disable_builtin_css = false
+```
+
+With this setup:
+
+- Kanagawa provides the layout and default palette.
+
+- `css_import` adds `@import "theme/dracula.css";` to the top of
+  `theme/css/chrome.css`.
+
+- `dracula.css` redefines the same CSS variables (`--bg`, `--fg`, `--accent`,
+  etc.), so your Dracula colors win while keeping the Kanagawa landing layout.
+
+If you want to take over entirely, you can also set `disable_builtin_css = true`
+and ship your own `theme/css/chrome.css` in the book repo instead of having the
+preprocessor write it.
+
+---
+
+## Preprocessor pipeline
+
+This theme is intended to sit in a small pipeline with the content
+preprocessors:
 
 ```toml
 [preprocessor.content-collections]
@@ -143,19 +188,18 @@ renderers = ["html"]
 before = ["content-loader", "content-collections"]
 
 [output.html]
-additional-css = ["theme/kanagawa.css"]
+default-theme = "rust"
+preferred-dark-theme = "navy"
 ```
 
-With this ordering:
+Order matters:
 
 1. `mdbook-content-collections` builds `content-collections.json`.
 
 2. `mdbook-content-loader` injects `window.CONTENT_COLLECTIONS`.
 
 3. `mdbook-kanagawa-theme` overwrites `index.md` content with your landing page
-   and writes `theme/kanagawa.css`.
-
-4. The default HTML backend picks up `theme/kanagawa.css` via `additional-css`.
+   and writes `theme/css/chrome.css`.
 
 The theme expects a blank `index.md` for the landing page, you can create one by
 adding the following to your `SUMMARY.md` as the first line:
@@ -166,8 +210,12 @@ adding the following to your `SUMMARY.md` as the first line:
 
 Run `mdbook build`, and the theme is automatically injected and applied.
 
-## Light/Dark behavior
+---
 
-`kanagawa.css` hooks into mdBook’s existing theme classes (`html.light`,
-`html.rust`, `html.coal`, `html.navy`), so the built-in theme dropdown still
-works.
+## Light/Dark and default-theme behavior
+
+Because this crate replaces `theme/css/chrome.css`, it effectively owns the
+visual theme for all built‑in modes (`light`, `rust`, `coal`, `navy`). The
+mdBook theme dropdown and your `default-theme` / `preferred-dark-theme` still
+control which class is applied to the page, but the palette for each of those
+classes is defined by the Kanagawa (or Dracula‑overridden) variables.

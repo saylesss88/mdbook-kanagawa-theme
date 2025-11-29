@@ -20,7 +20,6 @@ fn main() {
 
     // mdBook protocol: `supports <renderer>`
     if args.get(1).map(|s| s.as_str()) == Some("supports") {
-        // Only support HTML
         let renderer = args.get(2).map(|s| s.as_str()).unwrap_or("html");
         if renderer == "html" {
             process::exit(0);
