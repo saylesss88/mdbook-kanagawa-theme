@@ -98,6 +98,8 @@ You do **not** need `additional-css = ["theme/kanagawa.css"]`; the theme is
 injected by replacing `theme/css/chrome.css` directly. This was required for the
 theme to be respected in the latest mdbook versions.
 
+---
+
 ## Usage
 
 **Latest posts**
@@ -144,34 +146,37 @@ Now this chapter will be added to the "Recent notes" card.
 
 Popular tags is automatically populated from the `tags` key in the frontmatter.
 
-You can click the tag to list the associated chapters.
+You can click the tag to bring up the overviews of the chapters associated with
+the said tag.
 
 ---
 
 ## Overriding the palette (Dracula, etc.)
 
-This is still a WIP, currently the overrides aren't being respected.
+This is still a WIP, currently the overrides only apply to certain elements.
+Dracula is just an example, the idea is to allow overriding to whatever you
+prefer, just change the values in the provided `dracula.css` to what you like.
 
 <details>
 <summary> ✔️ Click to Expand override Example </summary>
 
 You can still override the color palette while keeping the Kanagawa layout.
 
-Example `theme/dracula.css`:
+Create `your-book/src/assets/dracula.css`:
 
 ```css
-/* theme/dracula.css */
+/* src/assets/dracula.css */
+
 html.navy,
 body.navy,
-.navy,
-html.light,
-body.light,
-.light {
+.navy {
+  /* Core page colors */
   --bg: #282a36;
   --bg-alt: #44475a;
   --fg: #f8f8f2;
   --fg-light: #cfcfd9;
 
+  /* Waves / accent palette */
   --wave-1: #282a36;
   --wave-2: #343746;
   --wave-3: #44475a;
@@ -179,25 +184,35 @@ body.light,
   --accent: #bd93f9;
   --red: #ff5555;
   --blue: #8be9fd;
-}
 
-/* Optional: tweak links/cards */
-a {
-  color: var(--accent);
-}
-a:hover {
-  text-decoration: underline;
-}
-.card {
-  box-shadow: 0 0 22px rgba(0, 0, 0, 0.45);
+  /* mdBook-specific navy vars */
+  --sidebar-bg: #282a36;
+  --sidebar-fg: #f8f8f2;
+  --sidebar-non-existant: #6272a4;
+  --sidebar-active: #bd93f9;
+  --sidebar-spacer: #44475a;
+
+  --links: #bd93f9;
+
+  --quote-bg: #343746;
+  --quote-border: #44475a;
+
+  --table-header-bg: #44475a;
+  --table-alternate-bg: #343746;
+
+  /* tweak others as you like */
 }
 ```
+
+When you run `mdbook build` this file will be placed in
+`your-book/book/assets/dracula.css`.
 
 And in `book.toml`:
 
 ```toml
 [preprocessor.kanagawa-theme]
 renderers = ["html"]
+before = ["content-loader", "content-collections"]
 
 landing_title = "My mdBook"
 landing_subtitle = "Notes, posts, and more"
@@ -206,19 +221,24 @@ header_latest = "Latest posts"
 header_notes = "Recent notes"
 header_tags = "Popular tags"
 
-css_import = "theme/dracula.css"
+css_import = "/assets/dracula.css"
 disable_builtin_css = false
 ```
 
 With this setup:
 
-- Kanagawa provides the layout and default palette.
+- mdBook still builds the book as usual, and `mdbook-kanagawa-theme` generates
+  `theme/css/chrome.css` with the Kanagawa layout and variable hooks.​
 
-- `css_import` adds `@import "theme/dracula.css";` to the top of
-  `theme/css/chrome.css`.
+- The preprocessor adds an `@import "/assets/dracula.css";` (from `css_import`)
+  at the top of that generated `chrome.css`, so your Dracula file runs after the
+  built‑in variable defaults.​
 
-- `dracula.css` redefines the same CSS variables (`--bg`, `--fg`, `--accent`,
-  etc.), so your Dracula colors win while keeping the Kanagawa landing layout.
+- Because `dracula.css` redefines the same CSS custom properties used by the
+  Kanagawa theme (`--bg`, `--fg`, `--accent`, sidebar colors, etc.), the page
+  keeps the Kanagawa layout and landing page, but all colors for the `navy`
+  theme class come from your Dracula palette instead. Kanagawa provides the
+  layout and default palette.
 
 </details>
 

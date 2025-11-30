@@ -145,24 +145,29 @@ fn build_landing_page(cfg: &KanagawaConfig) -> String {
 /// injecting Kanagawa variables, then appending any extra Kanagawa-specific CSS
 /// and optional @import (e.g. Dracula) at the end so it can override vars.
 fn build_full_chrome_css(cfg: &KanagawaConfig) -> String {
-    // This file should be created once by copying book/theme/css/chrome.css
-    // from a built mdBook into src/kanagawa_chrome_template.css.
     let base = include_str!("kanagawa_chrome_template.css");
 
     let mut out = String::new();
 
-    out.push_str(KANAGAWA_VARS);
-    out.push_str("\n\n");
-    out.push_str(base);
-    out.push_str("\n\n");
-    out.push_str(KANAGAWA_EXTRA_CSS);
-    out.push_str("\n\n");
-
+    // 1) Optional user CSS import (must be first)
     if let Some(path) = cfg.css_import.as_deref() {
+        // path should be "theme/dracula.css" from book.toml
         out.push_str("@import url(\"");
         out.push_str(path);
         out.push_str("\");\n\n");
     }
+
+    // 2) Kanagawa variables for each theme class
+    out.push_str(KANAGAWA_VARS);
+    out.push_str("\n\n");
+
+    // 3) mdBook's stock chrome.css template
+    out.push_str(base);
+    out.push_str("\n\n");
+
+    // 4) Extra Kanagawa styles layered on top
+    out.push_str(KANAGAWA_EXTRA_CSS);
+    out.push('\n');
 
     out
 }
