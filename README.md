@@ -7,8 +7,8 @@ It does not replace mdBook’s HTML backend, but it does replace the default
 
 The theme dropdown still works but the themes have a slightly different look.
 
-The landing page replaces `index.md` with a side‑by‑side layout (or not for
-small screens):
+The landing page replaces `index.md` with a side‑by‑side layout for big screens,
+and top-over-bottom for small screens:
 
 - **Latest Posts**
 - **Recent Notes**
@@ -28,6 +28,11 @@ Together they generate `content-collections.json` and expose a
 
 ```bash
 cargo install mdbook-kanagawa-theme
+# Install the themes dependencies
+cargo install mdbook-content-collections
+cargo install mdbook-content-loader
+# You'll probably want to strip the frontmatter
+# cargo install mdbook-frontmatter-strip
 ```
 
 Version check:
@@ -73,7 +78,7 @@ header_tags   = "Popular tags"
 
 # Optional: prepend an @import to the generated theme/css/chrome.css
 # Path is relative to the built book root (same as other mdBook theme files).
-# css_import = "theme/dracula.css"
+# css_import = "/assets/dracula.css"
 
 
 # Optional: if true, the preprocessor will NOT write theme/css/chrome.css
@@ -83,7 +88,7 @@ header_tags   = "Popular tags"
 [output.html]
 # Do NOT use additional-css for the main theme override.
 # default-theme still controls which theme class is set (rust, coal, navy, …)
-default-theme = "rust"
+default-theme = "navy"
 preferred-dark-theme = "navy"
 ```
 
@@ -113,7 +118,7 @@ like this:
 title: Nix Pull Requests
 date: 2025-11-27
 author: saylesss88
-collection: blog
+collection: "blog"
 tags: ["nixos", "nixpkgs"]
 draft: false
 ---
@@ -121,6 +126,10 @@ draft: false
 
 Now the chapter with the above frontmatter will be added to the "Latest posts"
 card.
+
+If you place an image above the first header, it will be shown in this card
+along with the date and overview. I may add the author to each chapter shown in
+"Latest posts" in the future but currently the author isn't listed.
 
 ---
 
@@ -138,7 +147,9 @@ tags: ["notes", "derivations"]
 ---
 ```
 
-Now this chapter will be added to the "Recent notes" card.
+Now this chapter will be added to the "Recent notes" card. This card only lists
+the links rather than the complete overview like "Latest posts" does. The
+frontmatter is fairly forgiving but in this case, `"notes"` must be quoted.
 
 ---
 
@@ -240,6 +251,9 @@ With this setup:
   theme class come from your Dracula palette instead. Kanagawa provides the
   layout and default palette.
 
+- The theme is only overridden currently for `Auto`, and `Navy` from the
+  dropdown.
+
 </details>
 
 ---
@@ -262,7 +276,7 @@ renderers = ["html"]
 before = ["content-loader", "content-collections"]
 
 [output.html]
-default-theme = "rust"
+default-theme = "navy"
 preferred-dark-theme = "navy"
 ```
 
@@ -293,3 +307,18 @@ visual theme for all built‑in modes (`light`, `rust`, `coal`, `navy`). The
 mdBook theme dropdown and your `default-theme` / `preferred-dark-theme` still
 control which class is applied to the page, but the palette for each of those
 classes is defined by the Kanagawa (or Dracula‑overridden) variables.
+
+---
+
+## Stripping the frontmatter
+
+mdBook does not parse or strip YAML frontmatter, so the raw block (e.g. any YAML
+keys like `title:`, `date:`, etc.) appears in the HTML.
+
+To avoid this, you can use:
+
+- [mdbook-frontmatter-strip](https://crates.io/crates/mdbook-frontmatter-strip)
+
+### License
+
+[Apache License 2.0](https://github.com/saylesss88/mdbook-kanagawa-theme/blob/main/LICENSE)
