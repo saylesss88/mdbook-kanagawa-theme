@@ -7,8 +7,15 @@ It does not replace mdBook’s HTML backend, but it does replace the default
 
 The theme dropdown still works but the themes have a slightly different look.
 
+<<<<<<< HEAD
 The landing page replaces `index.md` with a side‑by‑side layout for big screens,
 and top-over-bottom for small screens:
+=======
+![screenshot1](assets/swappy-20251130-142505.cleaned.png)
+
+The landing page replaces `index.md` with a side‑by‑side layout (or not for
+small screens):
+>>>>>>> 172b90ad77434695aaf9a289e9fc3a576994ff40
 
 - **Latest Posts**
 - **Recent Notes**
@@ -167,6 +174,8 @@ the said tag.
 This is still a WIP, currently the overrides only apply to certain elements.
 Dracula is just an example, the idea is to allow overriding to whatever you
 prefer, just change the values in the provided `dracula.css` to what you like.
+
+![screenshot1](assets/swappy-20251130-142446.cleaned.png)
 
 <details>
 <summary> ✔️ Click to Expand override Example </summary>
