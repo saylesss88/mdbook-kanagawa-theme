@@ -98,6 +98,52 @@ You do **not** need `additional-css = ["theme/kanagawa.css"]`; the theme is
 injected by replacing `theme/css/chrome.css` directly. This was required for the
 theme to be respected in the latest mdbook versions.
 
+## Usage
+
+**Latest posts**
+
+This theme works by filtering and sorting your frontmatter. For example, to add
+links/overviews/pics to the "Latest posts" card, your frontmatter would look
+like this:
+
+```yaml
+---
+title: Nix Pull Requests
+date: 2025-11-27
+author: saylesss88
+collection: blog
+tags: ["nixos", "nixpkgs"]
+draft: false
+---
+```
+
+Now the chapter with the above frontmatter will be added to the "Latest posts"
+card.
+
+---
+
+**Recent notes**
+
+The "Recent notes" card is tied to the `notes` collection:
+
+```yaml
+---
+title: Intro to Derivations
+date: 2025-11-21
+author: saylesss88
+collection: "notes"
+tags: ["notes", "derivations"]
+---
+```
+
+Now this chapter will be added to the "Recent notes" card.
+
+---
+
+**Popular tags**
+
+Popular tags is automatically populated from the `tags` key in the frontmatter.
+
 ---
 
 ## Overriding the palette (Dracula, etc.)
