@@ -7,15 +7,13 @@ It does not replace mdBook’s HTML backend, but it does replace the default
 
 The theme dropdown still works but the themes have a slightly different look.
 
-<<<<<<< HEAD
 The landing page replaces `index.md` with a side‑by‑side layout for big screens,
 and top-over-bottom for small screens:
-=======
-![screenshot1](assets/swappy-20251130-142505.cleaned.png)
+
+![screenshot1](assets/swappy-20251130-144149.cleaned.png)
 
 The landing page replaces `index.md` with a side‑by‑side layout (or not for
 small screens):
->>>>>>> 172b90ad77434695aaf9a289e9fc3a576994ff40
 
 - **Latest Posts**
 - **Recent Notes**
@@ -28,6 +26,13 @@ The content comes from:
 
 Together they generate `content-collections.json` and expose a
 `window.CONTENT_COLLECTIONS` global that this theme uses to render the cards.
+
+<details>
+<summary> Click to Expand pic of Popular tags Exampls </summary>
+
+![screenshot2](assets/swappy-20251130-144224.cleaned.png)
+
+</details>
 
 ---
 
