@@ -155,24 +155,15 @@ This is still a WIP, currently the overrides aren't being respected.
 <details>
 <summary> ✔️ Click to Expand override Example </summary>
 
-You can still override the color palette while keeping the Kanagawa layout.  
-The recommended way is to ship an extra CSS file and let `mdbook-kanagawa-theme`
-`@import` it at the top of `theme/css/chrome.css` via `css_import`.
+You can still override the color palette while keeping the Kanagawa layout.
 
-Example `theme/dracula.css` (simplified):
+Example `theme/dracula.css`:
 
 ```css
 /* theme/dracula.css */
-:root,
-html.coal,
-body.coal,
-.coal,
 html.navy,
 body.navy,
 .navy,
-html.rust,
-body.rust,
-.rust,
 html.light,
 body.light,
 .light {
@@ -228,10 +219,6 @@ With this setup:
 
 - `dracula.css` redefines the same CSS variables (`--bg`, `--fg`, `--accent`,
   etc.), so your Dracula colors win while keeping the Kanagawa landing layout.
-
-If you want to take over entirely, you can also set `disable_builtin_css = true`
-and ship your own `theme/css/chrome.css` in the book repo instead of having the
-preprocessor write it.
 
 </details>
 
