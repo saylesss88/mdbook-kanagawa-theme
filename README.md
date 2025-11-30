@@ -7,7 +7,8 @@ It does not replace mdBook’s HTML backend, but it does replace the default
 
 The theme dropdown still works but the themes have a slightly different look.
 
-The landing page replaces `index.md` with a side‑by‑side layout:
+The landing page replaces `index.md` with a side‑by‑side layout (or not for
+small screens):
 
 - **Latest Posts**
 - **Recent Notes**
@@ -35,7 +36,9 @@ Version check:
 mdbook-kanagawa-theme --version
 ```
 
-Add the preprocessor to your `book.toml`:
+Add the preprocessor to your `book.toml`. (I've included the other dependencies
+for clarity, you'll still want to set your `site-url` and whatever else your
+site requires):
 
 ```toml
 [book]
@@ -47,9 +50,18 @@ description = "Docs with a configurable Kanagawa-inspired landing page"
 # Optional, just to keep builds tidy
 build-dir = "book"
 
-[preprocessor.kanagawa-theme]
+[preprocessor.content-collections]
 renderers = ["html"]
 
+[preprocessor.content-loader]
+command = "mdbook-content-loader"
+renderers = ["html"]
+after = ["content-collections"]
+# inject_all = true
+
+[preprocessor.kanagawa-theme]
+renderers = ["html"]
+before = ["content-loader", "content-collections"]
 # Landing page text
 landing_title    = "My Docs"
 landing_subtitle = "Notes, posts, and more"
@@ -89,6 +101,11 @@ theme to be respected in the latest mdbook versions.
 ---
 
 ## Overriding the palette (Dracula, etc.)
+
+This is still a WIP, currently the overrides aren't being respected.
+
+<details>
+<summary> ✔️ Click to Expand override Example </summary>
 
 You can still override the color palette while keeping the Kanagawa layout.  
 The recommended way is to ship an extra CSS file and let `mdbook-kanagawa-theme`
@@ -167,6 +184,8 @@ With this setup:
 If you want to take over entirely, you can also set `disable_builtin_css = true`
 and ship your own `theme/css/chrome.css` in the book repo instead of having the
 preprocessor write it.
+
+</details>
 
 ---
 

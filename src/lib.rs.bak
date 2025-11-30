@@ -276,20 +276,16 @@ body.coal,
 .navy,
 html.navy,
 body.navy {
-  /* Dark Kanagawa Wave-like */
-  --bg: #1F1F28;        /* sumiInk1: default background */
-  --bg-alt: #2A2A37;    /* sumiInk2: lighter background (cards) */
-  --fg: #DCD7BA;        /* fujiWhite: main foreground */
-  --fg-light: #9CABCA;  /* springViolet2: softer text / subtitles */
-
-  /* Waves use blue-ish Kanagawa tones */
-  --wave-1: #1F1F28;    /* background */
-  --wave-2: #223249;    /* waveBlue1 */
-  --wave-3: #2D4F67;    /* waveBlue2 */
-
-  --accent: #7E9CD8;    /* crystalBlue: functions / titles */
-  --red: #E46876;       /* waveRed */
-  --blue: #7FB4CA;      /* springBlue */
+  --bg: #181616;
+  --bg-alt: #1f1f1f;
+  --fg: #c5c9c5;
+  --fg-light: #d7dae0;
+  --wave-1: #1f1f28;
+  --wave-2: #2a2a37;
+  --wave-3: #223249;
+  --accent: #7e9cd8;
+  --red: #c4746e;
+  --blue: #7fb4ca;
 }
 
 :root.light,
@@ -300,17 +296,16 @@ body.light,
 .rust,
 html.rust,
 body.rust {
-  /* Keep a simple light variant, slightly bluish */
-  --bg: #F5F5F5;
-  --bg-alt: #E8E8E8;
+  --bg: #f5f5f5;
+  --bg-alt: #e8e8e8;
   --fg: #283548;
-  --fg-light: #4C5A6E;
-  --wave-1: #E0E8F0;
-  --wave-2: #C8D8E8;
-  --wave-3: #A8C8E0;
-  --accent: #345E8F;
-  --red: #C4746E;
-  --blue: #7FB4CA;
+  --fg-light: #4c5a6e;
+  --wave-1: #e0e8f0;
+  --wave-2: #c8d8e8;
+  --wave-3: #a8c8e0;
+  --accent: #345e8f;
+  --red: #c4746e;
+  --blue: #7fb4ca;
 }
 "#;
 

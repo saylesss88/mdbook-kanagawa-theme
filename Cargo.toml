@@ -1,7 +1,7 @@
 [package]
 name = "mdbook-kanagawa-theme"
-version = "0.3.1"
-edition = "2021"
+version = "0.3.2"
+edition = "2024"
 description = "Stunning Kanagawa-inspired theme for mdBook with built-in content collection showcase"
 license = "Apache-2.0"
 keywords = ["mdbook", "theme", "kanagawa", "content-collections"]
