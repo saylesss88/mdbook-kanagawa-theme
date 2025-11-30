@@ -176,7 +176,7 @@ dependencies = [
 
 [[package]]
 name = "mdbook-kanagawa-theme"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "env_logger",
  "log",
