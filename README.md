@@ -144,6 +144,8 @@ Now this chapter will be added to the "Recent notes" card.
 
 Popular tags is automatically populated from the `tags` key in the frontmatter.
 
+You can click the tag to list the associated chapters.
+
 ---
 
 ## Overriding the palette (Dracula, etc.)

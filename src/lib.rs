@@ -1,7 +1,7 @@
 use mdbook_preprocessor::{
+    Preprocessor, PreprocessorContext,
     book::{Book, BookItem},
     errors::Error,
-    Preprocessor, PreprocessorContext,
 };
 use serde::Deserialize;
 use std::fs;
@@ -33,7 +33,7 @@ struct KanagawaConfig {
     header_notes: Option<String>,
     header_tags: Option<String>,
 
-    /// Optional CSS @import to prepend to theme/css/chrome.css
+    /// Optional CSS @import to append to theme/css/chrome.css
     css_import: Option<String>,
 
     /// If true, don't write theme/css/chrome.css at all
@@ -86,19 +86,20 @@ impl Preprocessor for KanagawaTheme {
         };
 
         // Overwrite index.md with the landing page
+
+        // Overwrite index.md with the landing page
         let mut landing_injected = false;
         book.for_each_mut(|item| {
-            if let BookItem::Chapter(chapter) = item {
-                if chapter.path.as_ref().and_then(|p| p.file_stem()) == Some("index".as_ref())
-                    && !landing_injected
-                {
-                    chapter.content = build_landing_page(&cfg);
-                    landing_injected = true;
-                }
+            if let BookItem::Chapter(chapter) = item
+                && chapter.path.as_ref().and_then(|p| p.file_stem()) == Some("index".as_ref())
+                && !landing_injected
+            {
+                chapter.content = build_landing_page(&cfg);
+                landing_injected = true;
             }
         });
 
-        // Write theme/css/chrome.css to override the built-in theme.[web:19]
+        // Write theme/css/chrome.css to override the built-in theme.
         if !cfg.disable_builtin_css.unwrap_or(false) {
             let css_dir: PathBuf = ctx.root.join("theme").join("css");
             if let Err(e) = fs::create_dir_all(&css_dir) {
@@ -141,8 +142,8 @@ fn build_landing_page(cfg: &KanagawaConfig) -> String {
 }
 
 /// Build a full chrome.css by taking a template copy of mdBook's chrome.css,
-/// injecting Kanagawa variables (and optional @import) at the top, and then
-/// appending any extra Kanagawa-specific CSS.
+/// injecting Kanagawa variables, then appending any extra Kanagawa-specific CSS
+/// and optional @import (e.g. Dracula) at the end so it can override vars.
 fn build_full_chrome_css(cfg: &KanagawaConfig) -> String {
     // This file should be created once by copying book/theme/css/chrome.css
     // from a built mdBook into src/kanagawa_chrome_template.css.
@@ -167,7 +168,7 @@ fn build_full_chrome_css(cfg: &KanagawaConfig) -> String {
 }
 
 // Note: Handlebars {{...}} in here are just literal HTML, not evaluated;
-// the page is pure HTML + JS, which is fine for a custom landing page.
+// the page is pure HTML + JS.
 const LANDING_PAGE_TEMPLATE: &str = r#"<!-- kanagawa landing -->
 <div class="wave-bg">
 <div class="wave"></div>
@@ -203,19 +204,21 @@ const LANDING_PAGE_TEMPLATE: &str = r#"<!-- kanagawa landing -->
     }
 
     var data = window.CONTENT_COLLECTIONS;
-    var entries = data.entries || {};
+    var entries = data.entries || [];
     var collections = data.collections || {};
 
     var link = function (p) {
       return (p.path || "").replace(/\.md(?:own|arkdown)?$/i, ".html");
     };
 
-    // Latest posts
-    var posts = (collections.blog || collections.posts || []).slice(0, 6);
-    var latestEl = document.getElementById("latest-posts");
-    if (latestEl) {
-      latestEl.innerHTML = posts.length
-        ? posts.map(function (p) {
+    // Render latest posts into #latest-posts (used on load and when filtering)
+    function renderLatest(posts) {
+      var latestEl = document.getElementById("latest-posts");
+      if (!latestEl) return;
+
+      var list = posts.slice(0, 6);
+      latestEl.innerHTML = list.length
+        ? list.map(function (p) {
             return (
               '<div class="post-preview">' +
                 '<h3><a href="' + link(p) + '">' + (p.title || p.path) + '</a></h3>' +
@@ -226,6 +229,10 @@ const LANDING_PAGE_TEMPLATE: &str = r#"<!-- kanagawa landing -->
           }).join("")
         : "<p>No posts yet.</p>";
     }
+
+    // Initial latest posts (blog, then fallback to posts)
+    var initialPosts = (collections.blog || collections.posts || []);
+    renderLatest(initialPosts);
 
     // Notes
     var notes = (collections.notes || []).slice(0, 8);
@@ -252,10 +259,27 @@ const LANDING_PAGE_TEMPLATE: &str = r#"<!-- kanagawa landing -->
 
     var tagEl = document.getElementById("tag-cloud");
     if (tagEl) {
+      // Render tags as clickable buttons
       tagEl.innerHTML = tags.map(function (pair) {
         var tag = pair[0], n = pair[1];
-        return '<span class="tag-pill">' + tag + " (" + n + ")</span>";
+        return '<button class="tag-pill" type="button" data-tag="' + tag + '">' +
+                 tag + " (" + n + ")" +
+               "</button>";
       }).join("");
+
+      // Clicking a tag filters "Latest posts" by that tag
+      tagEl.addEventListener("click", function (ev) {
+        var btn = ev.target.closest(".tag-pill");
+        if (!btn) return;
+        var tag = btn.getAttribute("data-tag");
+
+        var source = (collections.blog || collections.posts || []);
+        var filtered = source.filter(function (p) {
+          return (p.tags || []).includes(tag);
+        });
+
+        renderLatest(filtered.length ? filtered : source);
+      });
     }
   })();
 </script>
@@ -300,7 +324,7 @@ body.light,
 .rust,
 html.rust,
 body.rust {
-  /* Keep a simple light variant, slightly bluish */
+  /* Simple light variant, slightly bluish */
   --bg: #F5F5F5;
   --bg-alt: #E8E8E8;
   --fg: #283548;
@@ -421,6 +445,7 @@ a:hover {
   border-radius: 2rem;
   font-size: 0.9rem;
   transition: all 0.2s;
+  cursor: pointer;
 }
 
 .tag-cloud .tag-pill:hover {
