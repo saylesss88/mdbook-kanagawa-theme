@@ -28,7 +28,7 @@ Together they generate `content-collections.json` and expose a
 `window.CONTENT_COLLECTIONS` global that this theme uses to render the cards.
 
 <details>
-<summary> Click to Expand pic of Popular tags Example </summary>
+<summary> Click to Expand Popular tags Example </summary>
 
 > You can click on the tag to bring up the associated chapters.
 
@@ -53,6 +53,7 @@ Version check:
 
 ```bash
 mdbook-kanagawa-theme --version
+mdbook-kanagawa-theme -V
 ```
 
 Add the preprocessor to your `book.toml`. (I've included the other dependencies
