@@ -28,7 +28,9 @@ Together they generate `content-collections.json` and expose a
 `window.CONTENT_COLLECTIONS` global that this theme uses to render the cards.
 
 <details>
-<summary> Click to Expand pic of Popular tags Exampls </summary>
+<summary> Click to Expand pic of Popular tags Example </summary>
+
+> You can click on the tag to bring up the associated chapters.
 
 ![screenshot2](assets/swappy-20251130-144224.cleaned.png)
 

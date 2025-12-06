@@ -86,8 +86,6 @@ impl Preprocessor for KanagawaTheme {
         };
 
         // Overwrite index.md with the landing page
-
-        // Overwrite index.md with the landing page
         let mut landing_injected = false;
         book.for_each_mut(|item| {
             if let BookItem::Chapter(chapter) = item
@@ -142,8 +140,8 @@ fn build_landing_page(cfg: &KanagawaConfig) -> String {
 }
 
 /// Build a full chrome.css by taking a template copy of mdBook's chrome.css,
-/// injecting Kanagawa variables, then appending any extra Kanagawa-specific CSS
-/// and optional @import (e.g. Dracula) at the end so it can override vars.
+/// optionally prefixing an @import (user CSS) at the very top,
+/// then injecting Kanagawa variables and appending extra Kanagawa-specific CSS.
 fn build_full_chrome_css(cfg: &KanagawaConfig) -> String {
     let base = include_str!("kanagawa_chrome_template.css");
 
