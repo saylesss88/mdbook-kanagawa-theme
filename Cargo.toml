@@ -7,14 +7,7 @@ license = "Apache-2.0"
 description = "Stunning Kanagawa-inspired interactive landing page for mdBook with built-in content collection showcase"
 repository = "https://github.com/saylesss88/mdbook-kanagawa-theme"
 readme = "README.md"
-keywords = [
-	"mdbook",
-	"theme",
-	"blog",
-	"kanagawa",
-	"content-collections",
-	"preprocessor",
-]
+keywords = ["mdbook", "theme", "blog", "content-collections", "preprocessor"]
 categories = ["command-line-utilities"]
 homepage = "https://github.com/saylesss88/mdbook-kanagawa-theme"
 documentation = "https://docs.rs/mdbook-kanagawa-theme"
