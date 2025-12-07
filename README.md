@@ -1,16 +1,21 @@
 # mdbook-kanagawa-theme
 
-`mdbook-kanagawa-theme` provides a Kanagawa-inspired **landing page** and **full
-visual theme override** for the HTML renderer.  
-It does not replace mdBook’s HTML backend, but it does replace the default
-`theme/css/chrome.css` with a Kanagawa-flavored version.
+`mdbook-kanagawa-theme` provides an interactive, blog-like **landing page** and
+**full visual theme override** for the HTML renderer. It does not replace
+mdBook’s HTML backend, but it does replace the default `theme/css/chrome.css`
+with a Kanagawa-flavored version.
+
+By tweaking per‑chapter frontmatter date, you can choose which pages are
+featured on the landing (for example, as “Latest Posts” or “Recent Notes”). Your
+books structure stays the same, only your landing page is replaced. (This also
+works with no date listed by using timestamps).
 
 The theme dropdown still works but the themes have a slightly different look.
 
 The landing page replaces `index.md` with a side‑by‑side layout for big screens,
 and top-over-bottom for small screens:
 
-![screenshot1](assets/swappy-20251130-144149.cleaned.png)
+![screenshot1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/swappy-20251130-144149.cleaned.png)
 
 The landing page replaces `index.md` with a side‑by‑side layout (or not for
 small screens):
@@ -124,6 +129,8 @@ theme to be respected in the latest mdbook versions.
 
 **Latest posts**
 
+The "Latest posts" card is tied to the `blog` collection.
+
 This theme works by filtering and sorting your frontmatter. For example, to add
 links/overviews/pics to the "Latest posts" card, your frontmatter would look
 like this:
@@ -183,7 +190,7 @@ This is still a WIP, currently the overrides only apply to certain elements.
 Dracula is just an example, the idea is to allow overriding to whatever you
 prefer, just change the values in the provided `dracula.css` to what you like.
 
-![screenshot1](assets/swappy-20251130-142446.cleaned.png)
+![screenshot1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/swappy-20251130-142446.cleaned.png)
 
 <details>
 <summary> ✔️ Click to Expand override Example </summary>
@@ -245,6 +252,7 @@ before = ["content-loader", "content-collections"]
 landing_title = "My mdBook"
 landing_subtitle = "Notes, posts, and more"
 
+# These strings can be changed to whatever you prefer
 header_latest = "Latest posts"
 header_notes = "Recent notes"
 header_tags = "Popular tags"
@@ -277,6 +285,9 @@ With this setup:
 
 ## Preprocessor pipeline
 
+The above `book.toml` is all that's required, this section is just shown for
+clarity.
+
 This theme is intended to sit in a small pipeline with the content
 preprocessors:
 
@@ -306,11 +317,17 @@ Order matters:
 3. `mdbook-kanagawa-theme` overwrites `index.md` content with your landing page
    and writes `theme/css/chrome.css`.
 
-The theme expects a blank `index.md` for the landing page, you can create one by
-adding the following to your `SUMMARY.md` as the first line:
+The theme can use a blank or titled `index.md` for the landing page, you can
+create one by adding the following to your `SUMMARY.md` as the first line:
 
 ```md
 [](index.md)
+```
+
+Or
+
+```md
+[Introduction](index.md)
 ```
 
 Run `mdbook build`, and the theme is automatically injected and applied.
