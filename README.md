@@ -254,48 +254,42 @@ You can still override the color palette while keeping the Kanagawa layout.
 Create `your-book/src/assets/dracula.css`:
 
 ```css
+/* src/assets/dracula.css */
+
 :root.coal,
 .coal,
 html.coal,
-body.coal,
-:root.navy,
-.navy,
-html.navy,
-body.navy,
-:root.light,
-.light,
-html.light,
-body.light,
-:root.rust,
-.rust,
-html.rust,
-body.rust {
+body.coal {
+  /* Core page colors */
   --bg: #282a36;
   --bg-alt: #44475a;
   --fg: #f8f8f2;
   --fg-light: #cfcfd9;
 
+  /* Waves / accent palette */
   --wave-1: #282a36;
   --wave-2: #343746;
   --wave-3: #44475a;
 
-  --accent: #bd93f9;
+  --accent: #bd93f9; /* main accent (purple) */
   --red: #ff5555;
   --blue: #8be9fd;
 
+  /* Sidebar */
   --sidebar-bg: #282a36;
   --sidebar-fg: #f8f8f2;
   --sidebar-non-existant: #6272a4;
   --sidebar-active: #bd93f9;
   --sidebar-spacer: #44475a;
 
-  --links: #8be9fd;
-  --heading: #bd93f9;
-  --bold: #ffb86c;
+  /* Content links / headings / bold */
+  --links: #8be9fd; /* cyan links */
+  --heading: #bd93f9; /* purple headings */
+  --bold: #ffb86c; /* warm emphasis */
 
+  /* Optional extras */
   --quote-bg: #343746;
   --quote-border: #44475a;
-
   --table-header-bg: #44475a;
   --table-alternate-bg: #343746;
 }
