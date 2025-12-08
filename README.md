@@ -17,9 +17,6 @@ and top-over-bottom for small screens:
 
 ![screenshot1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/landing1.png)
 
-The landing page replaces `index.md` with a side‑by‑side layout (or not for
-small screens):
-
 - **Latest Posts**
 - **Recent Notes**
 - **Popular Tags**
@@ -250,7 +247,7 @@ prefer, just change the values in the provided `dracula.css` to what you like.
 ![dracula](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/dracula1.png)
 
 <details>
-<summary> ✔️ Click to Expand override Example </summary>
+<summary> ✔️ Dracula Override Example </summary>
 
 You can still override the color palette while keeping the Kanagawa layout.
 
@@ -343,7 +340,9 @@ With this setup:
   theme class come from your Dracula palette instead. Kanagawa provides the
   layout and default palette.
 
-- The dracula theme is only overrides the `coal` theme from the dropdown,
+- The dracula theme is only overrides the `coal` theme from the dropdown, this
+  way you can easily switch between the normal themes with dracula and kanagawa
+  added.
 
 </details>
 
