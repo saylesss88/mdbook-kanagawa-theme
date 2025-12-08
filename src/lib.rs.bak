@@ -295,7 +295,11 @@ const LANDING_PAGE_TEMPLATE: &str = r#"<!-- kanagawa landing -->
 "#;
 
 /// Theme variables: bind Kanagawa palette to mdBook theme classes.
-const KANAGAWA_VARS: &str = r#":root.navy,
+const KANAGAWA_VARS: &str = r#":root.coal,
+.coal,
+html.coal,
+body.coal,
+:root.navy,
 .navy,
 html.navy,
 body.navy {
@@ -315,8 +319,8 @@ body.navy {
   --blue: #7FB4CA;      /* springBlue */
 
   --heading: #7AA89F;   /* waveAqua2 */
-  --links:  #7FB4CA;    /* springBlue: inline links */
-  --bold: #C8C093;      /* oldWhite */
+  --links:  #7FB4CA;   /* springBlue: inline links */
+  --bold: #C8C093;     /* oldWhite */
 }
 
 :root.light,

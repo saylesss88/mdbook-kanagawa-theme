@@ -242,6 +242,113 @@ Run `mdbook build`, and the theme is automatically injected and applied.
 
 ---
 
+## Overriding the palette (Dracula, etc.)
+
+Dracula is just an example, the idea is to allow overriding to whatever you
+prefer, just change the values in the provided `dracula.css` to what you like.
+
+![dracula](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/dracula1.png)
+
+<details>
+<summary> ✔️ Click to Expand override Example </summary>
+
+You can still override the color palette while keeping the Kanagawa layout.
+
+Create `your-book/src/assets/dracula.css`:
+
+```css
+:root.coal,
+.coal,
+html.coal,
+body.coal,
+:root.navy,
+.navy,
+html.navy,
+body.navy,
+:root.light,
+.light,
+html.light,
+body.light,
+:root.rust,
+.rust,
+html.rust,
+body.rust {
+  --bg: #282a36;
+  --bg-alt: #44475a;
+  --fg: #f8f8f2;
+  --fg-light: #cfcfd9;
+
+  --wave-1: #282a36;
+  --wave-2: #343746;
+  --wave-3: #44475a;
+
+  --accent: #bd93f9;
+  --red: #ff5555;
+  --blue: #8be9fd;
+
+  --sidebar-bg: #282a36;
+  --sidebar-fg: #f8f8f2;
+  --sidebar-non-existant: #6272a4;
+  --sidebar-active: #bd93f9;
+  --sidebar-spacer: #44475a;
+
+  --links: #8be9fd;
+  --heading: #bd93f9;
+  --bold: #ffb86c;
+
+  --quote-bg: #343746;
+  --quote-border: #44475a;
+
+  --table-header-bg: #44475a;
+  --table-alternate-bg: #343746;
+}
+```
+
+When you run `mdbook build` this file will be placed in
+`your-book/book/assets/dracula.css`.
+
+**This only overrides the coal color-scheme** from the dropdown.
+
+And in `book.toml`:
+
+```toml
+[preprocessor.kanagawa-theme]
+renderers = ["html"]
+before = ["content-loader", "content-collections"]
+
+landing_title = "My mdBook"
+landing_subtitle = "Notes, posts, and more"
+
+# These strings can be changed to whatever you prefer
+header_latest = "Latest posts"
+header_notes = "Recent notes"
+header_tags = "Popular tags"
+
+css_import = "/assets/dracula.css"
+disable_builtin_css = false
+```
+
+With this setup:
+
+- mdBook still builds the book as usual, and `mdbook-kanagawa-theme` generates
+  `theme/css/chrome.css` with the Kanagawa layout and variable hooks.​
+
+- The preprocessor adds an `@import "/assets/dracula.css";` (from `css_import`)
+  at the top of that generated `chrome.css`, so your Dracula file runs after the
+  built‑in variable defaults.​
+
+- Because `dracula.css` redefines the same CSS custom properties used by the
+  Kanagawa theme (`--bg`, `--fg`, `--accent`, sidebar colors, etc.), the page
+  keeps the Kanagawa layout and landing page, but all colors for the `navy`
+  theme class come from your Dracula palette instead. Kanagawa provides the
+  layout and default palette.
+
+- The dracula theme is only overrides the `coal` theme from the dropdown,
+
+</details>
+
+---
+
 ## Light/Dark and default-theme behavior
 
 Because this crate replaces `theme/css/chrome.css`, it effectively owns the
