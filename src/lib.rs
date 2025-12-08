@@ -38,6 +38,9 @@ struct KanagawaConfig {
 
     /// If true, don't write theme/css/chrome.css at all
     disable_builtin_css: Option<bool>,
+
+    /// Card layout preset: "compact" (default) or "wide"
+    card_layout: Option<String>,
 }
 
 impl Preprocessor for KanagawaTheme {
@@ -81,6 +84,11 @@ impl Preprocessor for KanagawaTheme {
             disable_builtin_css: ctx
                 .config
                 .get::<bool>("preprocessor.kanagawa-theme.disable_builtin_css")
+                .ok()
+                .flatten(),
+            card_layout: ctx
+                .config
+                .get::<String>("preprocessor.kanagawa-theme.card_layout")
                 .ok()
                 .flatten(),
         };
@@ -129,12 +137,20 @@ fn build_landing_page(cfg: &KanagawaConfig) -> String {
     let header_notes = cfg.header_notes.as_deref().unwrap_or("Recent Notes");
     let header_tags = cfg.header_tags.as_deref().unwrap_or("Popular Tags");
 
+    let layout = cfg.card_layout.as_deref().unwrap_or("compact");
+
+    let grid_class = match layout {
+        "wide" => "grid grid-wide",
+        _ => "grid",
+    };
+
     let mut html = LANDING_PAGE_TEMPLATE.to_owned();
     html = html.replace("{{LANDING_TITLE}}", title);
     html = html.replace("{{LANDING_SUBTITLE}}", subtitle);
     html = html.replace("{{HEADER_LATEST}}", header_latest);
     html = html.replace("{{HEADER_NOTES}}", header_notes);
     html = html.replace("{{HEADER_TAGS}}", header_tags);
+    html = html.replace("{{GRID_CLASS}}", grid_class);
 
     html
 }
@@ -183,19 +199,19 @@ const LANDING_PAGE_TEMPLATE: &str = r#"<!-- kanagawa landing -->
 <h1 class="title">{{LANDING_TITLE}}</h1>
 <p class="subtitle">{{LANDING_SUBTITLE}}</p>
 
-<div class="grid">
-<div class="card">
-<h2>{{HEADER_LATEST}}</h2>
-<div id="latest-posts"><em>Loading...</em></div>
-</div>
-<div class="card">
-<h2>{{HEADER_NOTES}}</h2>
-<div id="recent-notes"><em>Loading...</em></div>
-</div>
-<div class="card">
-<h2>{{HEADER_TAGS}}</h2>
-<div id="tag-cloud" class="tag-cloud"></div>
-</div>
+<div class="{{GRID_CLASS}}">
+  <div class="card">
+    <h2>{{HEADER_LATEST}}</h2>
+    <div id="latest-posts"><em>Loading...</em></div>
+  </div>
+  <div class="card">
+    <h2>{{HEADER_NOTES}}</h2>
+    <div id="recent-notes"><em>Loading...</em></div>
+  </div>
+  <div class="card">
+    <h2>{{HEADER_TAGS}}</h2>
+    <div id="tag-cloud" class="tag-cloud"></div>
+  </div>
 </div>
 </div>
 
@@ -459,6 +475,17 @@ a:hover {
   gap: 2rem;
   max-width: 1200px;
   width: 100%;
+  margin: 0 auto;
+}
+
+.grid-wide {
+  max-width: 1600px;
+}
+
+@media (min-width: 1200px) {
+  .grid-wide {
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  }
 }
 
 .card {

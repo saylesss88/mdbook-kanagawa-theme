@@ -12,8 +12,8 @@ works with no date listed by using timestamps).
 
 The theme dropdown still works but the themes have a slightly different look.
 
-The landing page replaces `index.md` with a side‑by‑side layout for big screens,
-and top-over-bottom for small screens:
+The landing page replaces `index.md` with a configurable side‑by‑side or
+top-over-bottom layout:
 
 ![screenshot1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/landing1.png)
 
@@ -100,10 +100,12 @@ header_latest = "Latest posts"
 header_notes  = "Recent notes"
 header_tags   = "Popular tags"
 
+# Use bigger cards and top-over-bottom layout in full-screen view
+# card_layout = "wide"  # or "compact"
+
 # Optional: prepend an @import to the generated theme/css/chrome.css
 # Path is relative to the built book root (same as other mdBook theme files).
 # css_import = "/assets/dracula.css"
-
 
 # Optional: if true, the preprocessor will NOT write theme/css/chrome.css
 # (use this if you want to maintain your own chrome.css instead)
@@ -126,6 +128,13 @@ On each build, the preprocessor:
 You do **not** need `additional-css = ["theme/kanagawa.css"]`; the theme is
 injected by replacing `theme/css/chrome.css` directly. This was required for the
 theme to be respected in the latest mdbook versions.
+
+<details>
+<summary> ✔️ card_layout = "wide" </summary>
+
+![card_layout = "wide"](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/wide.png)
+
+</details>
 
 ---
 
@@ -330,7 +339,7 @@ With this setup:
 
 - Because `dracula.css` redefines the same CSS custom properties used by the
   Kanagawa theme (`--bg`, `--fg`, `--accent`, sidebar colors, etc.), the page
-  keeps the Kanagawa layout and landing page, but all colors for the `navy`
+  keeps the Kanagawa layout and landing page, but all colors for the `coal`
   theme class come from your Dracula palette instead. Kanagawa provides the
   layout and default palette.
 
