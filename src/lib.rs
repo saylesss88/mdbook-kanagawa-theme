@@ -317,6 +317,10 @@ body.navy {
   --accent: #7E9CD8;    /* crystalBlue: functions / titles */
   --red: #E46876;       /* waveRed */
   --blue: #7FB4CA;      /* springBlue */
+
+  --heading: #7AA89F;   /* waveAqua2 */
+  --links:  #7FB4CA;   /* springBlue: inline links */
+  --bold: #C8C093;     /* oldWhite */
 }
 
 :root.light,
@@ -338,6 +342,9 @@ body.rust {
   --accent: #345E8F;
   --red: #C4746E;
   --blue: #7FB4CA;
+
+  /* kanagawa aqua for headings */
+  --heading: #7AA89F;   /* waveAqua2 */
 }
 "#;
 
@@ -355,6 +362,40 @@ a {
 a:hover {
   text-decoration: underline;
 }
+
+/* Bold / strong emphasis */
+.content strong,
+.content b {
+  color: var(--bold) !important;
+  font-weight: 600;
+}
+
+.content a:link,
+.content a:visited {
+  color: var(--links) !important;
+}
+
+.content a:hover,
+.content a:focus {
+  color: var(--accent) !important;
+  text-decoration: underline;
+}
+
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6,
+.content .header:link,
+.content .header:visited,
+.content .header:hover,
+.content .header:active {
+  color: var(--heading) !important;
+}
+.content h1 { font-weight: 500; }
+.content h2 { font-weight: 500; }
+      
 
 .wave-bg {
   position: fixed;

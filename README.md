@@ -15,7 +15,7 @@ The theme dropdown still works but the themes have a slightly different look.
 The landing page replaces `index.md` with a side‑by‑side layout for big screens,
 and top-over-bottom for small screens:
 
-![screenshot1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/swappy-20251130-144149.cleaned.png)
+![screenshot1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/landing1.png)
 
 The landing page replaces `index.md` with a side‑by‑side layout (or not for
 small screens):
@@ -33,11 +33,18 @@ Together they generate `content-collections.json` and expose a
 `window.CONTENT_COLLECTIONS` global that this theme uses to render the cards.
 
 <details>
-<summary> Click to Expand Popular tags Example </summary>
+<summary> ✔️ Popular tags Example </summary>
 
 > You can click on the tag to bring up the associated chapters.
 
-![screenshot2](assets/swappy-20251130-144224.cleaned.png)
+![screenshot2](assets/popular_tags.png)
+
+</details>
+
+<details>
+<summary> ✔️ Content Example </summary>
+
+![content](assets/content1.png)
 
 </details>
 
