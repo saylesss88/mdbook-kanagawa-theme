@@ -132,6 +132,9 @@ theme to be respected in the latest mdbook versions.
 <details>
 <summary> ✔️ card_layout = "wide" </summary>
 
+This only changes the cards width on bigger screens, the look is the same for
+phones:
+
 ![card_layout = "wide"](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/wide.png)
 
 </details>
