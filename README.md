@@ -18,6 +18,27 @@ top-over-bottom layout:
 
 ![screenshot1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/landing1.png)
 
+<details>
+<summary> ✔️ Dracula </summary>
+
+![dracula](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/dracula1.png)
+
+</details>
+
+<details>
+<summary> ✔️ Tokyo-Night </summary>
+
+![tokyo1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/jj.png)
+
+</details>
+
+<details>
+<summary> ✔️ Catppuccin-Mocha </summary>
+
+![catppuccin-mocha](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/catppuccin-mocha.png)
+
+</details>
+
 - **Latest Posts**
 - **Recent Notes**
 - **Popular Tags**
@@ -49,6 +70,8 @@ Together they generate `content-collections.json` and expose a
 ---
 
 ## Installation
+
+This section assumes that you already have `mdbook` installed.
 
 ```bash
 cargo install mdbook-kanagawa-theme
@@ -252,7 +275,7 @@ Run `mdbook build`, and the theme is automatically injected and applied.
 
 ---
 
-## Overriding the palette (Dracula, etc.)
+## Overriding the palette (Dracula, Tokyo-Night, etc.)
 
 Dracula is just an example, the idea is to allow overriding to whatever you
 prefer, just change the values in the provided `dracula.css` to what you like.
@@ -311,7 +334,8 @@ body.coal {
 When you run `mdbook build` this file will be placed in
 `your-book/book/assets/dracula.css`.
 
-**This only overrides the coal color-scheme** from the dropdown.
+**This only overrides the coal color-scheme** from the dropdown. The other
+themes will still use the Kanagawa defaults.
 
 And in `book.toml`:
 
@@ -420,11 +444,78 @@ disable_builtin_css = false
 default-theme = "coal"
 ```
 
+- The other themes will still use the Kanagawa defaults.
+
 ![tokyo2](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/tokyo.png)
 
 </details>
 
 ---
+
+## Catppuccin Mocha
+
+![catppuccin-mocha](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/catppuccin-mocha.png)
+
+<details>
+<summary> ✔️ Catppuccin-Mocha Override </summary>
+
+Create `your-book/src/assets/catppuccin-mocha.css`
+
+```css
+/* src/assets/catppuccin-mocha.css */
+
+:root.coal,
+.coal,
+html.coal,
+body.coal {
+  /* Core page colors (Catppuccin Mocha-inspired) */
+  --bg: #1e1e2e; /* base */
+  --bg-alt: #313244; /* surface0 */
+  --fg: #cdd6f4; /* text */
+  --fg-light: #a6adc8; /* subtext1 */
+
+  /* Waves / accent palette */
+  --wave-1: #1e1e2e; /* base */
+  --wave-2: #313244; /* surface0 */
+  --wave-3: #45475a; /* surface1 */
+
+  --accent: #89b4fa; /* blue */
+  --red: #f38ba8; /* red */
+  --blue: #89b4fa; /* blue */
+
+  /* Sidebar */
+  --sidebar-bg: #1e1e2e; /* base */
+  --sidebar-fg: #cdd6f4; /* text */
+  --sidebar-non-existant: #6c7086; /* overlay1 */
+  --sidebar-active: #89b4fa; /* blue */
+  --sidebar-spacer: #313244; /* surface0 */
+
+  /* Content links / headings / bold */
+  --links: #89b4fa; /* blue links */
+  --heading: #cba6f7; /* mauve headings */
+  --bold: #f9e2af; /* yellow emphasis */
+
+  /* Optional extras */
+  --quote-bg: #313244; /* surface0 */
+  --quote-border: #45475a; /* surface1 */
+  --table-header-bg: #45475a; /* surface1 */
+  --table-alternate-bg: #313244; /* surface0 */
+}
+```
+
+Add this to your `book.toml` along with what's been shown so far. The overrides
+only apply to the `coal` theme from the dropdown:
+
+```toml
+css_import = "/assets/catppuccin-mocha.css"
+disable_builtin_css = false
+
+[output.html]
+# automatically switch to the override
+default-theme = "coal"
+```
+
+</details>
 
 ## Light/Dark and default-theme behavior
 

@@ -67,7 +67,8 @@ fn main() {
 /// - Checks that the mdBook version calling us matches the version
 ///   range the plugin was built against, logging a warning if not.
 /// - Invokes `pre.run(...)` to transform the book.
-/// - Writes the processed book back to stdout as JSON.
+/// - Writes the processed book back to stdout as JSON using mdBook’s
+///   stdin/stdout preprocessor protocol.
 fn run(pre: &dyn Preprocessor) -> Result<(), Error> {
     // Read and deserialize the context + book from stdin using mdBook helpers.
     let (ctx, book) = parse_input(io::stdin())?;

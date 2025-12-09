@@ -7,36 +7,43 @@ use serde::Deserialize;
 use std::fs;
 use std::path::PathBuf;
 
+/// mdBook preprocessor that injects a Kanagawa-themed landing page
+/// and wires Kanagawa CSS into the generated HTML output.
 pub struct KanagawaTheme;
 
 impl Default for KanagawaTheme {
+    /// Construct a `KanagawaTheme` using the default constructor.
     fn default() -> Self {
         Self::new()
     }
 }
 
 impl KanagawaTheme {
+    /// Create a new `KanagawaTheme` preprocessor with no internal state.
     pub fn new() -> Self {
         KanagawaTheme
     }
 }
 
 #[derive(Debug, Default, Deserialize)]
+/// Configuration loaded from `[preprocessor.kanagawa-theme]` in `book.toml`.
 struct KanagawaConfig {
     /// Landing page main title
     landing_title: Option<String>,
     /// Landing page subtitle
     landing_subtitle: Option<String>,
 
-    /// Column headers
+    /// Column header for the "Latest posts" card.
     header_latest: Option<String>,
+    /// Column header text for the "Recent notes" card.
     header_notes: Option<String>,
+    /// Column header for the "Popular tags" card.
     header_tags: Option<String>,
 
-    /// Optional CSS @import to append to theme/css/chrome.css
+    /// Optional CSS `@import` to prepend at the top of `theme/css/chrome.css`.
     css_import: Option<String>,
 
-    /// If true, don't write theme/css/chrome.css at all
+    /// If true, don't write `theme/css/chrome.css` at all
     disable_builtin_css: Option<bool>,
 
     /// Card layout preset: "compact" (default) or "wide"
@@ -44,12 +51,18 @@ struct KanagawaConfig {
 }
 
 impl Preprocessor for KanagawaTheme {
+    /// Returns the preprocessor name as used in `book.toml`
+    /// under `[preprocessor.kanagawa-theme]`.
     fn name(&self) -> &str {
         "kanagawa-theme"
     }
 
+    /// Apply the Kanagawa theme:
+    /// * read configuration from the `PreprocessorContext`,
+    /// * replace `index.md` with a dynamic landing page, and
+    /// * optionally write `theme/css/chrome.css` to override the stock theme.
     fn run(&self, ctx: &PreprocessorContext, mut book: Book) -> Result<Book, Error> {
-        // Read config from [preprocessor.kanagawa-theme] in book.toml
+        // Read config from [preprocessor.kanagawa-theme] in `book.toml`
         let cfg = KanagawaConfig {
             landing_title: ctx
                 .config
@@ -121,11 +134,16 @@ impl Preprocessor for KanagawaTheme {
         Ok(book)
     }
 
+    /// Only support the HTML renderer, as the theme CSS and landing page
+    /// are specific to HTML output.
     fn supports_renderer(&self, renderer: &str) -> Result<bool, Error> {
         Ok(renderer == "html")
     }
 }
 
+/// Build the HTML source for the Kanagawa landing page by
+/// filling `LANDING_PAGE_TEMPLATE` with configured titles, headers,
+/// and the selected card layout.
 fn build_landing_page(cfg: &KanagawaConfig) -> String {
     let title = cfg.landing_title.as_deref().unwrap_or("mdTheme");
     let subtitle = cfg
@@ -155,9 +173,11 @@ fn build_landing_page(cfg: &KanagawaConfig) -> String {
     html
 }
 
-/// Build a full chrome.css by taking a template copy of mdBook's chrome.css,
-/// optionally prefixing an @import (user CSS) at the very top,
-/// then injecting Kanagawa variables and appending extra Kanagawa-specific CSS.
+/// Build a complete `chrome.css` by:
+/// 1. optionally inserting a user-provided `@import`,
+/// 2. appending Kanagawa CSS variables,
+/// 3. including the mdBook chrome template, and
+/// 4. layering additional Kanagawa styles on top.
 fn build_full_chrome_css(cfg: &KanagawaConfig) -> String {
     let base = include_str!("kanagawa_chrome_template.css");
 
@@ -310,7 +330,8 @@ const LANDING_PAGE_TEMPLATE: &str = r#"<!-- kanagawa landing -->
 </style>
 "#;
 
-/// Theme variables: bind Kanagawa palette to mdBook theme classes.
+/// Theme variables: map the Kanagawa color palette onto mdBook theme classes,
+/// providing dark and light variants via CSS custom properties.
 const KANAGAWA_VARS: &str = r#":root.navy,
 .navy,
 html.navy,
@@ -361,6 +382,7 @@ body.rust {
 "#;
 
 /// Extra Kanagawa styles layered on top of mdBook's chrome.css.
+/// including the animated wave background, landing layout, and card styling.
 const KANAGAWA_EXTRA_CSS: &str = r#"body {
   background: var(--bg);
   color: var(--fg);
