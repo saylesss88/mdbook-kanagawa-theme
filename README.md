@@ -432,7 +432,8 @@ Because this crate replaces `theme/css/chrome.css`, it effectively owns the
 visual theme for all built‑in modes (`light`, `rust`, `coal`, `navy`). The
 mdBook theme dropdown and your `default-theme` / `preferred-dark-theme` still
 control which class is applied to the page, but the palette for each of those
-classes is defined by the Kanagawa (or Dracula‑overridden) variables.
+classes is defined by the Kanagawa (or Dracula/Tokyo-Night overridden)
+variables.
 
 ---
 
