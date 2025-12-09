@@ -1,9 +1,10 @@
 # mdbook-kanagawa-theme
 
-`mdbook-kanagawa-theme` provides an interactive, blog-like **landing page** and
-**full visual theme override** for the HTML renderer. It does not replace
+`mdbook-kanagawa-theme` provides an interactive, **blog‑like landing page** and
+a **full visual theme override** for the HTML renderer. It does not replace
 mdBook’s HTML backend, but it does replace the default `theme/css/chrome.css`
-with a Kanagawa-flavored version.
+with a Kanagawa‑inspired variant. You can easily swap in any colorscheme you
+like, with Dracula and Tokyo Night example palettes included.
 
 By tweaking per‑chapter frontmatter date, you can choose which pages are
 featured on the landing (for example, as “Latest Posts” or “Recent Notes”). Your
@@ -101,7 +102,7 @@ header_notes  = "Recent notes"
 header_tags   = "Popular tags"
 
 # Use bigger cards and top-over-bottom layout in full-screen view
-# card_layout = "wide"  # or "compact"
+# card_layout = "wide"  # or "compact" # side-by-side layout
 
 # Optional: prepend an @import to the generated theme/css/chrome.css
 # Path is relative to the built book root (same as other mdBook theme files).
@@ -329,6 +330,10 @@ header_tags = "Popular tags"
 
 css_import = "/assets/dracula.css"
 disable_builtin_css = false
+
+[output.html]
+# automatically switch to the override
+default-theme = "coal"
 ```
 
 With this setup:
@@ -346,8 +351,8 @@ With this setup:
   theme class come from your Dracula palette instead. Kanagawa provides the
   layout and default palette.
 
-- The dracula theme is only overrides the `coal` theme from the dropdown, this
-  way you can easily switch between the normal themes with dracula and kanagawa
+- The dracula theme only overrides the `coal` theme from the dropdown, this way
+  you can easily switch between the normal themes with dracula and kanagawa
   added.
 
 </details>
@@ -403,11 +408,16 @@ body.coal {
 }
 ```
 
-Add this to your `book.toml` along with what's been shown so far:
+Add this to your `book.toml` along with what's been shown so far. The overrides
+only apply to the `coal` theme from the dropdown:
 
 ```toml
 css_import = "/assets/tokyo-night.css"
 disable_builtin_css = false
+
+[output.html]
+# automatically switch to the override
+default-theme = "coal"
 ```
 
 ![tokyo2](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/tokyo.png)
