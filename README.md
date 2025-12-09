@@ -67,7 +67,12 @@ Together they generate `content-collections.json` and expose a
 
 </details>
 
----
+<details>
+<summary> ✔️ Code block kanagawa syntax highlighting </summary>
+
+![kanagawa-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/kanagawa-code.png)
+
+## </details>
 
 ## Installation
 
@@ -124,6 +129,7 @@ header_latest = "Latest posts"
 header_notes  = "Recent notes"
 header_tags   = "Popular tags"
 
+
 # Use bigger cards and top-over-bottom layout in full-screen view
 # card_layout = "wide"  # or "compact" # side-by-side layout
 
@@ -137,11 +143,16 @@ header_tags   = "Popular tags"
 # (use this if you want to maintain your own chrome.css instead)
 # disable_builtin_css = true
 
+# Optional: prepend an @import to the code theme CSS
+# code_css_import = "theme/custom-code.css"
+
 [output.html]
 # Do NOT use additional-css for the main theme override.
 # default-theme still controls which theme class is set (rust, coal, navy, …)
 default-theme = "navy"
 preferred-dark-theme = "navy"
+# Also add kanagawa syntax highlightiing to the code blocks
+additional-css = ["theme/css/kanagawa-code.css"]
 ```
 
 You can change the header names to whatever you prefer.
@@ -183,6 +194,28 @@ Or
 ```md
 [Introduction](index.md)
 ```
+
+## Kanagawa syntax highlighting (optional)
+
+In addition to the main Kanagawa UI theme, the preprocessor can also generate a
+matching code theme for fenced code blocks. When enabled, it writes:
+
+- `theme/css/chrome.css` – the Kanagawa layout and UI chrome (as before)
+- `theme/css/kanagawa-code.css` – Kanagawa-flavored syntax highlighting
+  targeting mdBook’s default `highlight.js` classes (such as `.hljs`,
+  `.hljs-keyword`, `.hljs-string`, `.hljs-comment`, etc.)
+
+To apply the code theme, add it to your HTML output configuration:
+
+```toml
+[output.html]
+additional-css = ["theme/css/kanagawa-code.css"]
+```
+
+`chrome.css` is still injected automatically by the preprocessor; only the code
+theme needs to be listed in `additional-css`.
+
+---
 
 ### Frontmatter
 
@@ -308,6 +341,41 @@ When you run `mdbook build` this file will be placed in
 **This only overrides the coal color-scheme** from the dropdown. The other
 themes will still use the Kanagawa defaults.
 
+Also override the code blocks with dracula syntax highlighting, create a
+`your-book/theme/css/dracula-code.css`:
+
+```css
+/* theme/css/dracula-code.css */
+
+/* Base code block look */
+.hljs {
+  background: #282a36; /* background */
+  color: #f8f8f2; /* foreground */
+}
+
+/* Or, if you prefer to keep using the layout vars: */
+pre code.hljs,
+code.hljs {
+  background: var(--bg-alt);
+  color: var(--fg);
+}
+
+/* Token colors */
+.hljs-keyword {
+  color: #ff79c6;
+} /* pink */
+.hljs-string {
+  color: #f1fa8c;
+} /* yellow */
+.hljs-number {
+  color: #bd93f9;
+} /* purple */
+.hljs-comment {
+  color: #6272a4;
+  font-style: italic;
+} /* comment */
+```
+
 And in `book.toml`:
 
 ```toml
@@ -329,6 +397,7 @@ disable_builtin_css = false
 [output.html]
 # automatically switch to the override
 default-theme = "coal"
+additional-css = ["kanagawa-code.css", "dracula-code.css"]
 ```
 
 With this setup:
@@ -349,6 +418,8 @@ With this setup:
 - The dracula theme only overrides the `coal` theme from the dropdown, this way
   you can easily switch between the normal themes with dracula and kanagawa
   added.
+
+![dracula-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/dracula-code.png)
 
 </details>
 
@@ -401,6 +472,41 @@ body.coal {
 }
 ```
 
+Add tokyo-night code block syntax highlighting, create a
+`your-book/theme/css/tokyo-night-code.css`:
+
+```css
+/* theme/css/tokyo-night-code.css */
+
+/* Base code block look */
+.hljs {
+  background: #1a1b26; /* Tokyo Night background */
+  color: #c0caf5; /* default foreground */
+}
+
+/* Or, if you prefer to keep using the layout vars: */
+pre code.hljs,
+code.hljs {
+  background: var(--bg-alt);
+  color: var(--fg);
+}
+
+/* Token colors */
+.hljs-keyword {
+  color: #bb9af7;
+} /* purple */
+.hljs-string {
+  color: #9ece6a;
+} /* green */
+.hljs-number {
+  color: #ff9e64;
+} /* orange */
+.hljs-comment {
+  color: #565f89;
+  font-style: italic;
+}
+```
+
 Add this to your `book.toml` along with what's been shown so far. The overrides
 only apply to the `coal` theme from the dropdown:
 
@@ -411,11 +517,12 @@ disable_builtin_css = false
 [output.html]
 # automatically switch to the override
 default-theme = "coal"
+additional-css = ["kanagawa-code.css", "tokyo-night-code.css"]
 ```
 
 - The other themes will still use the Kanagawa defaults.
 
-![tokyo2](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/tokyo.png)
+![tokyo-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/tokyo-night-code.png)
 
 </details>
 
@@ -473,6 +580,42 @@ body.coal {
 Add this to your `book.toml` along with what's been shown so far. The overrides
 only apply to the `coal` theme from the dropdown:
 
+Also apply catppuccin-mocha syntax highlighting for code blocks:
+
+Create `your-book/theme/css/catppuccin-mocha-code.css`:
+
+```css
+/* theme/css/catppuccin-mocha-code.css */
+
+/* Base code block look */
+.hljs {
+  background: #1e1e2e; /* base */
+  color: #cdd6f4; /* text */
+}
+
+/* Or, if you prefer to keep using the layout vars: */
+pre code.hljs,
+code.hljs {
+  background: var(--bg-alt);
+  color: var(--fg);
+}
+
+/* Token colors */
+.hljs-keyword {
+  color: #cba6f7;
+} /* mauve */
+.hljs-string {
+  color: #a6e3a1;
+} /* green */
+.hljs-number {
+  color: #fab387;
+} /* peach */
+.hljs-comment {
+  color: #585b70;
+  font-style: italic;
+} /* surface2 */
+```
+
 ```toml
 css_import = "/assets/catppuccin-mocha.css"
 disable_builtin_css = false
@@ -480,9 +623,17 @@ disable_builtin_css = false
 [output.html]
 # automatically switch to the override
 default-theme = "coal"
+additional-css = [
+	"theme/css/kanagawa-code.css",
+	"theme/css/catppuccin-mocha-code.css",
+]
 ```
 
+- `"theme/css/kanagawa-code.css"` isn't required.
+
 - The other themes continue to use the Kanagawa palette.
+
+![mocha-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/catppuccin-code.png)
 
 </details>
 

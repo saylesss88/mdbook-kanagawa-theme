@@ -48,12 +48,6 @@ struct KanagawaConfig {
 
     /// Card layout preset: "compact" (default) or "wide"
     card_layout: Option<String>,
-
-    /// Optional CSS `@import` to prepend at the top of the code theme CSS.
-    code_css_import: Option<String>,
-
-    /// If true, don't write `theme/css/kanagawa-code.css` at all.
-    disable_builtin_code_css: Option<bool>,
 }
 
 impl Preprocessor for KanagawaTheme {
@@ -66,7 +60,7 @@ impl Preprocessor for KanagawaTheme {
     /// Apply the Kanagawa theme:
     /// * read configuration from the `PreprocessorContext`,
     /// * replace `index.md` with a dynamic landing page, and
-    /// * optionally write `theme/css/chrome.css` and `theme/css/kanagawa-code.css`.
+    /// * optionally write `theme/css/chrome.css` to override the stock theme.
     fn run(&self, ctx: &PreprocessorContext, mut book: Book) -> Result<Book, Error> {
         // Read config from [preprocessor.kanagawa-theme] in `book.toml`
         let cfg = KanagawaConfig {
@@ -110,16 +104,6 @@ impl Preprocessor for KanagawaTheme {
                 .get::<String>("preprocessor.kanagawa-theme.card_layout")
                 .ok()
                 .flatten(),
-            code_css_import: ctx
-                .config
-                .get::<String>("preprocessor.kanagawa-theme.code_css_import")
-                .ok()
-                .flatten(),
-            disable_builtin_code_css: ctx
-                .config
-                .get::<bool>("preprocessor.kanagawa-theme.disable_builtin_code_css")
-                .ok()
-                .flatten(),
         };
 
         // Overwrite index.md with the landing page
@@ -143,19 +127,6 @@ impl Preprocessor for KanagawaTheme {
                 let css = build_full_chrome_css(&cfg);
                 if let Err(e) = fs::write(css_dir.join("chrome.css"), css) {
                     log::warn!("kanagawa-theme: failed to write theme/css/chrome.css: {e}");
-                }
-            }
-        }
-
-        // Write Kanagawa code syntax CSS (highlight.js classes) by default.
-        if !cfg.disable_builtin_code_css.unwrap_or(false) {
-            let css_dir: PathBuf = ctx.root.join("theme").join("css");
-            if let Err(e) = fs::create_dir_all(&css_dir) {
-                log::warn!("kanagawa-theme: failed to create theme/css dir for code CSS: {e}");
-            } else {
-                let css = build_code_css(&cfg);
-                if let Err(e) = fs::write(css_dir.join("kanagawa-code.css"), css) {
-                    log::warn!("kanagawa-theme: failed to write theme/css/kanagawa-code.css: {e}");
                 }
             }
         }
@@ -230,23 +201,6 @@ fn build_full_chrome_css(cfg: &KanagawaConfig) -> String {
 
     // 4) Extra Kanagawa styles layered on top
     out.push_str(KANAGAWA_EXTRA_CSS);
-    out.push('\n');
-
-    out
-}
-
-/// Build the Kanagawa code syntax CSS (for highlight.js).
-fn build_code_css(cfg: &KanagawaConfig) -> String {
-    let mut out = String::new();
-
-    // Optional user import at the very top.
-    if let Some(path) = cfg.code_css_import.as_deref() {
-        out.push_str("@import url(\"");
-        out.push_str(path);
-        out.push_str("\");\n\n");
-    }
-
-    out.push_str(KANAGAWA_CODE_CSS);
     out.push('\n');
 
     out
@@ -427,7 +381,7 @@ body.rust {
 }
 "#;
 
-/// Extra Kanagawa styles layered on top of mdBook's chrome.css,
+/// Extra Kanagawa styles layered on top of mdBook's chrome.css.
 /// including the animated wave background, landing layout, and card styling.
 const KANAGAWA_EXTRA_CSS: &str = r#"body {
   background: var(--bg);
@@ -586,61 +540,5 @@ a:hover {
 .tag-cloud .tag-pill:hover {
   background: var(--accent);
   color: var(--bg);
-}
-"#;
-
-/// Kanagawa-flavored syntax highlighting for highlight.js.
-/// This assumes mdBook's default highlighter and class names.
-const KANAGAWA_CODE_CSS: &str = r#"
-pre code.hljs,
-code.hljs {
-  background: var(--bg-alt);
-  color: var(--fg);
-}
-
-/* Keywords, control flow */
-.hljs-keyword,
-.hljs-selector-tag,
-.hljs-literal {
-  color: #E46876; /* waveRed */
-}
-
-/* Strings, attributes */
-.hljs-string,
-.hljs-attr,
-.hljs-template-tag {
-  color: #98BB6C; /* springGreen */
-}
-
-/* Numbers, builtins, types */
-.hljs-number,
-.hljs-built_in,
-.hljs-type {
-  color: #7E9CD8; /* crystalBlue */
-}
-
-/* Comments */
-.hljs-comment {
-  color: #727169;
-  font-style: italic;
-}
-
-/* Function names */
-.hljs-title,
-.hljs-title.function_ {
-  color: #7FB4CA; /* springBlue */
-}
-
-/* Constants, variables */
-.hljs-variable,
-.hljs-constant,
-.hljs-symbol {
-  color: #FFA066; /* surimiOrange */
-}
-
-/* Punctuation / operators */
-.hljs-operator,
-.hljs-punctuation {
-  color: var(--fg);
 }
 "#;
