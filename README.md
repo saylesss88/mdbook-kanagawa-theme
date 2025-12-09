@@ -4,7 +4,7 @@
 a **full visual theme override** for the HTML renderer. It does not replace
 mdBook’s HTML backend, but it does replace the default `theme/css/chrome.css`
 with a Kanagawa‑inspired variant. You can easily swap in any colorscheme you
-like, with Dracula and Tokyo Night example palettes included.
+like, with Dracula, Tokyo Night, and Catppuccin-Mocha example palettes included.
 
 By tweaking per‑chapter frontmatter date, you can choose which pages are
 featured on the landing (for example, as “Latest Posts” or “Recent Notes”). Your
@@ -35,7 +35,7 @@ top-over-bottom layout:
 <details>
 <summary> ✔️ Catppuccin-Mocha </summary>
 
-![catppuccin-mocha](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/catppuccin-mocha.png)
+![catppuccin-mocha](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/catppuccin2.png)
 
 </details>
 
@@ -130,6 +130,8 @@ header_tags   = "Popular tags"
 # Optional: prepend an @import to the generated theme/css/chrome.css
 # Path is relative to the built book root (same as other mdBook theme files).
 # css_import = "/assets/dracula.css"
+# css_import = "/assets/tokyo-night.css"
+# css_import = "/assets/catppuccin-mocha.css"
 
 # Optional: if true, the preprocessor will NOT write theme/css/chrome.css
 # (use this if you want to maintain your own chrome.css instead)
@@ -141,6 +143,8 @@ header_tags   = "Popular tags"
 default-theme = "navy"
 preferred-dark-theme = "navy"
 ```
+
+You can change the header names to whatever you prefer.
 
 On each build, the preprocessor:
 
@@ -224,39 +228,7 @@ the said tag.
 
 ---
 
-## Preprocessor pipeline
-
-The above `book.toml` is all that's required, this section is just shown for
-clarity.
-
-This theme is intended to sit in a small pipeline with the content
-preprocessors:
-
-```toml
-[preprocessor.content-collections]
-renderers = ["html"]
-
-[preprocessor.content-loader]
-renderers = ["html"]
-after = ["content-collections"]
-
-[preprocessor.kanagawa-theme]
-renderers = ["html"]
-before = ["content-loader", "content-collections"]
-
-[output.html]
-default-theme = "navy"
-preferred-dark-theme = "navy"
-```
-
-Order matters:
-
-1. `mdbook-content-collections` builds `content-collections.json`.
-
-2. `mdbook-content-loader` injects `window.CONTENT_COLLECTIONS`.
-
-3. `mdbook-kanagawa-theme` overwrites `index.md` content with your landing page
-   and writes `theme/css/chrome.css`.
+## Create an index.md
 
 The theme can use a blank or titled `index.md` for the landing page, you can
 create one by adding the following to your `SUMMARY.md` as the first line:
@@ -279,8 +251,6 @@ Run `mdbook build`, and the theme is automatically injected and applied.
 
 Dracula is just an example, the idea is to allow overriding to whatever you
 prefer, just change the values in the provided `dracula.css` to what you like.
-
-![dracula](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/dracula1.png)
 
 <details>
 <summary> ✔️ Dracula Override </summary>
@@ -383,8 +353,6 @@ With this setup:
 
 ### Tokyo-Night
 
-![tokyo1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/jj.png)
-
 <details>
 <summary> ✔️ Tokyo-Night Override </summary>
 
@@ -454,8 +422,6 @@ default-theme = "coal"
 
 ## Catppuccin Mocha
 
-![catppuccin-mocha](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/catppuccin-mocha.png)
-
 <details>
 <summary> ✔️ Catppuccin-Mocha Override </summary>
 
@@ -514,6 +480,8 @@ disable_builtin_css = false
 # automatically switch to the override
 default-theme = "coal"
 ```
+
+- The other themes continue to use the Kanagawa palette
 
 </details>
 
