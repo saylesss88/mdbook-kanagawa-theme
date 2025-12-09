@@ -8,7 +8,7 @@ like, with Dracula, Tokyo Night, and Catppuccin-Mocha example palettes included.
 
 By tweaking per‑chapter frontmatter date, you can choose which pages are
 featured on the landing (for example, as “Latest Posts” or “Recent Notes”). Your
-books structure stays the same, only your landing page is replaced. (This also
+book's structure stays the same, only your landing page is replaced. (This also
 works with no date listed by using timestamps).
 
 The theme dropdown still works but the themes have a slightly different look.
@@ -171,6 +171,24 @@ phones:
 
 ## Usage
 
+The theme can use a blank or titled `index.md` for the landing page, you can
+create one by adding the following to your `SUMMARY.md` as the first line:
+
+```md
+[](index.md)
+```
+
+Or
+
+```md
+[Introduction](index.md)
+```
+
+### Frontmatter
+
+- Adding the `date` is strongly recommended but not necessary, entries with no
+  `date` fall back to timestamps.
+
 **Latest posts**
 
 The "Latest posts" card is tied to the `blog` collection.
@@ -225,23 +243,6 @@ Popular tags is automatically populated from the `tags` key in the frontmatter.
 
 You can click the tag to bring up the overviews of the chapters associated with
 the said tag.
-
----
-
-## Create an index.md
-
-The theme can use a blank or titled `index.md` for the landing page, you can
-create one by adding the following to your `SUMMARY.md` as the first line:
-
-```md
-[](index.md)
-```
-
-Or
-
-```md
-[Introduction](index.md)
-```
 
 Run `mdbook build`, and the theme is automatically injected and applied.
 
@@ -481,7 +482,7 @@ disable_builtin_css = false
 default-theme = "coal"
 ```
 
-- The other themes continue to use the Kanagawa palette
+- The other themes continue to use the Kanagawa palette.
 
 </details>
 
