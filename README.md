@@ -259,7 +259,7 @@ prefer, just change the values in the provided `dracula.css` to what you like.
 ![dracula](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/dracula1.png)
 
 <details>
-<summary> ✔️ Dracula Override Example </summary>
+<summary> ✔️ Dracula Override </summary>
 
 You can still override the color palette while keeping the Kanagawa layout.
 
@@ -349,6 +349,68 @@ With this setup:
 - The dracula theme is only overrides the `coal` theme from the dropdown, this
   way you can easily switch between the normal themes with dracula and kanagawa
   added.
+
+</details>
+
+### Tokyo-Night
+
+![tokyo1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/jj.png)
+
+<details>
+<summary> ✔️ Tokyo-Night Override </summary>
+
+Create `your-book/src/assets/tokyo-night.css`:
+
+```css
+/* src/assets/tokyo-night.css */
+
+:root.coal,
+.coal,
+html.coal,
+body.coal {
+  /* Core page colors (Tokyo Night-ish) */
+  --bg: #1a1b26;
+  --bg-alt: #24283b;
+  --fg: #c0caf5;
+  --fg-light: #a9b1d6; /* lighter foreground */
+
+  /* Waves / accent palette */
+  --wave-1: #1a1b26; /* deepest background */
+  --wave-2: #24283b; /* normal background */
+  --wave-3: #292e42; /* slightly raised panels */
+
+  --accent: #7aa2f7; /* main accent (blue) */
+  --red: #f7768e; /* error / destructive */
+  --blue: #7dcfff; /* secondary accent / info */
+
+  /* Sidebar */
+  --sidebar-bg: #1a1b26;
+  --sidebar-fg: #c0caf5;
+  --sidebar-non-existant: #565f89; /* dimmed items */
+  --sidebar-active: #7aa2f7;
+  --sidebar-spacer: #24283b;
+
+  /* Content links / headings / bold */
+  --links: #7dcfff; /* cyan-ish links */
+  --heading: #7aa2f7; /* blue headings */
+  --bold: #ff9e64; /* warm emphasis */
+
+  /* Optional extras */
+  --quote-bg: #24283b;
+  --quote-border: #292e42;
+  --table-header-bg: #292e42;
+  --table-alternate-bg: #24283b;
+}
+```
+
+Add this to your `book.toml` along with what's been shown so far:
+
+```toml
+css_import = "/assets/tokyo-night.css"
+disable_builtin_css = false
+```
+
+![tokyo2](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/tokyo.png)
 
 </details>
 
