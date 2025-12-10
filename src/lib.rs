@@ -592,10 +592,19 @@ a:hover {
 /// Kanagawa-flavored syntax highlighting for highlight.js.
 /// This assumes mdBook's default highlighter and class names.
 const KANAGAWA_CODE_CSS: &str = r#"
-pre code.hljs,
-code.hljs {
-  background: var(--bg-alt);
+/* Block code: slightly lifted off main bg/card */
+pre code.hljs {
+  background: #2a3146; /* pick a shade with clear contrast vs --bg and --bg-alt */
   color: var(--fg);
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+}
+
+/* Inline highlighted code (no box) */
+:not(pre) > code.hljs {
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
 /* Keywords, control flow */

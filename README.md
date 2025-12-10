@@ -70,7 +70,7 @@ Together they generate `content-collections.json` and expose a
 <details>
 <summary> ✔️ Code block kanagawa syntax highlighting </summary>
 
-![kanagawa-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/kanagawa-code.png)
+![kanagawa-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/kanagawa-code2.png)
 
 ## </details>
 
@@ -306,6 +306,8 @@ body.coal {
   --fg: #f8f8f2;
   --fg-light: #cfcfd9;
 
+  --code-bg: #363a4f;
+
   /* Waves / accent palette */
   --wave-1: #282a36;
   --wave-2: #343746;
@@ -333,6 +335,13 @@ body.coal {
   --table-header-bg: #44475a;
   --table-alternate-bg: #343746;
 }
+
+.coal pre code.hljs,
+.coal code.hljs,
+.coal .hljs {
+  background: var(--code-bg) !important;
+  color: var(--fg) !important;
+}
 ```
 
 When you run `mdbook build` this file will be placed in
@@ -347,33 +356,63 @@ Also override the code blocks with dracula syntax highlighting, create a
 ```css
 /* theme/css/dracula-code.css */
 
-/* Base code block look */
+/* Base code block look: distinct but still Dracula */
 .hljs {
-  background: #282a36; /* background */
-  color: #f8f8f2; /* foreground */
+  background: #282a36 !important; /* Dracula background */
+  color: #f8f8f2 !important; /* Dracula foreground */
 }
 
-/* Or, if you prefer to keep using the layout vars: */
 pre code.hljs,
 code.hljs {
-  background: var(--bg-alt);
-  color: var(--fg);
+  background: #282a36 !important;
+  color: #f8f8f2 !important;
 }
 
-/* Token colors */
-.hljs-keyword {
-  color: #ff79c6;
-} /* pink */
-.hljs-string {
-  color: #f1fa8c;
-} /* yellow */
-.hljs-number {
-  color: #bd93f9;
-} /* purple */
+/* Tokens */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-type {
+  color: #ff79c6 !important; /* pink */
+}
+
+.hljs-string,
+.hljs-attribute,
+.hljs-attr {
+  color: #f1fa8c !important; /* yellow */
+}
+
+.hljs-number,
+.hljs-literal {
+  color: #bd93f9 !important; /* purple */
+}
+
+.hljs-variable,
+.hljs-tag,
+.hljs-regexp,
+.hljs-symbol,
+.hljs-bullet {
+  color: #8be9fd !important; /* cyan */
+}
+
 .hljs-comment {
-  color: #6272a4;
-  font-style: italic;
-} /* comment */
+  color: #6272a4 !important;
+  font-style: italic !important;
+}
+
+/* Block code only */
+pre code.hljs {
+  background: var(--code-bg); /* or #24283b if you prefer */
+  color: #c0caf5;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+}
+
+/* Optional: make inline highlighted code look normal */
+:not(pre) > code.hljs {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
 ```
 
 And in `book.toml`:
@@ -419,7 +458,7 @@ With this setup:
   you can easily switch between the normal themes with dracula and kanagawa
   added.
 
-![dracula-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/dracula-code.png)
+![dracula-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/dracula-code2.png)
 
 </details>
 
@@ -442,6 +481,7 @@ body.coal {
   --bg-alt: #24283b;
   --fg: #c0caf5;
   --fg-light: #a9b1d6; /* lighter foreground */
+  --code-bg: #292e42; /* slightly brighter/darker than card */
 
   /* Waves / accent palette */
   --wave-1: #1a1b26; /* deepest background */
@@ -470,6 +510,13 @@ body.coal {
   --table-header-bg: #292e42;
   --table-alternate-bg: #24283b;
 }
+/* Make code blocks use the dedicated code background on coal theme */
+.coal pre code.hljs,
+.coal code.hljs,
+.coal .hljs {
+  background: var(--code-bg) !important;
+  color: var(--fg) !important;
+}
 ```
 
 Add tokyo-night code block syntax highlighting, create a
@@ -478,32 +525,62 @@ Add tokyo-night code block syntax highlighting, create a
 ```css
 /* theme/css/tokyo-night-code.css */
 
-/* Base code block look */
+/* Base code block look: a bit lighter than page bg */
 .hljs {
-  background: #1a1b26; /* Tokyo Night background */
-  color: #c0caf5; /* default foreground */
+  background: #24283b; /* Tokyo Night panel */
+  color: #c0caf5;
 }
 
-/* Or, if you prefer to keep using the layout vars: */
 pre code.hljs,
 code.hljs {
-  background: var(--bg-alt);
-  color: var(--fg);
+  background: #24283b; /* Tokyo Night panel */
+  color: #c0caf5;
 }
 
 /* Token colors */
-.hljs-keyword {
-  color: #bb9af7;
-} /* purple */
-.hljs-string {
-  color: #9ece6a;
-} /* green */
-.hljs-number {
-  color: #ff9e64;
-} /* orange */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-type {
+  color: #bb9af7 !important; /* purple */
+}
+
+.hljs-string,
+.hljs-attribute,
+.hljs-attr {
+  color: #9ece6a !important; /* green */
+}
+
+.hljs-number,
+.hljs-literal {
+  color: #ff9e64 !important; /* orange */
+}
+
+.hljs-variable,
+.hljs-tag,
+.hljs-regexp,
+.hljs-symbol,
+.hljs-bullet {
+  color: #7dcfff !important; /* cyan-ish / accent */
+}
+
 .hljs-comment {
-  color: #565f89;
-  font-style: italic;
+  color: #565f89 !important;
+  font-style: italic !important;
+}
+
+/* Block code only */
+pre code.hljs {
+  background: var(--code-bg); /* or #24283b if you prefer */
+  color: #c0caf5;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+}
+
+/* Optional: make inline highlighted code look normal */
+:not(pre) > code.hljs {
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 ```
 
@@ -522,7 +599,7 @@ additional-css = ["kanagawa-code.css", "tokyo-night-code.css"]
 
 - The other themes will still use the Kanagawa defaults.
 
-![tokyo-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/tokyo-night-code.png)
+![tokyo-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/tokyo-night-code2.png)
 
 </details>
 
@@ -547,6 +624,7 @@ body.coal {
   --bg-alt: #313244; /* surface0 */
   --fg: #cdd6f4; /* text */
   --fg-light: #a6adc8; /* subtext1 */
+  --code-bg: #45475a; /* code block bg */
 
   /* Waves / accent palette */
   --wave-1: #1e1e2e; /* base */
@@ -575,6 +653,13 @@ body.coal {
   --table-header-bg: #45475a; /* surface1 */
   --table-alternate-bg: #313244; /* surface0 */
 }
+
+.coal pre code.hljs,
+.coal code.hljs,
+.coal .hljs {
+  background: var(--code-bg) !important;
+  color: var(--fg) !important;
+}
 ```
 
 Add this to your `book.toml` along with what's been shown so far. The overrides
@@ -587,33 +672,63 @@ Create `your-book/theme/css/catppuccin-mocha-code.css`:
 ```css
 /* theme/css/catppuccin-mocha-code.css */
 
-/* Base code block look */
+/* Base code block look: a bit lighter than page bg */
 .hljs {
-  background: #1e1e2e; /* base */
-  color: #cdd6f4; /* text */
+  background: #313244; /* surface0 */
+  color: #cdd6f4;
 }
 
-/* Or, if you prefer to keep using the layout vars: */
 pre code.hljs,
 code.hljs {
-  background: var(--bg-alt);
-  color: var(--fg);
+  background: #313244; /* surface0 */
+  color: #cdd6f4;
 }
 
-/* Token colors */
-.hljs-keyword {
-  color: #cba6f7;
-} /* mauve */
-.hljs-string {
-  color: #a6e3a1;
-} /* green */
-.hljs-number {
-  color: #fab387;
-} /* peach */
+/* Tokens */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-type {
+  color: #cba6f7 !important; /* mauve */
+}
+
+.hljs-string,
+.hljs-attribute,
+.hljs-attr {
+  color: #a6e3a1 !important; /* green */
+}
+
+.hljs-number,
+.hljs-literal {
+  color: #fab387 !important; /* peach */
+}
+
+.hljs-variable,
+.hljs-tag,
+.hljs-regexp,
+.hljs-symbol,
+.hljs-bullet {
+  color: #f38ba8 !important; /* red/pink */
+}
+
 .hljs-comment {
-  color: #585b70;
-  font-style: italic;
-} /* surface2 */
+  color: #585b70 !important;
+  font-style: italic !important;
+}
+
+/* Block code only */
+pre code.hljs {
+  background: var(--code-bg); /* or #24283b if you prefer */
+  color: #c0caf5;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+}
+
+/* Optional: make inline highlighted code look normal */
+:not(pre) > code.hljs {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
 ```
 
 ```toml
@@ -633,7 +748,7 @@ additional-css = [
 
 - The other themes continue to use the Kanagawa palette.
 
-![mocha-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/catppuccin-code.png)
+![mocha-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/catppuccin-code2.png)
 
 </details>
 
