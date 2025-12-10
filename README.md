@@ -63,7 +63,7 @@ Together they generate `content-collections.json` and expose a
 <details>
 <summary> ✔️ Content Example </summary>
 
-![content](assets/content1.png)
+![content](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/content1.png)
 
 </details>
 
@@ -167,6 +167,9 @@ On each build, the preprocessor:
 You do **not** need `additional-css = ["theme/kanagawa.css"]`; the theme is
 injected by replacing `theme/css/chrome.css` directly. This was required for the
 theme to be respected in the latest mdbook versions.
+
+The `additional-css` shown above is strictly for the code block syntax
+highlighting and is completely optional.
 
 <details>
 <summary> ✔️ card_layout = "wide" </summary>
@@ -462,6 +465,8 @@ With this setup:
 
 </details>
 
+---
+
 ### Tokyo-Night
 
 <details>
@@ -752,6 +757,8 @@ additional-css = [
 
 </details>
 
+---
+
 ## Light/Dark and default-theme behavior
 
 Because this crate replaces `theme/css/chrome.css`, it effectively owns the
@@ -771,6 +778,8 @@ keys like `title:`, `date:`, etc.) appears in the HTML.
 To avoid this, you can use:
 
 - [mdbook-frontmatter-strip](https://crates.io/crates/mdbook-frontmatter-strip)
+
+---
 
 ### License
 
