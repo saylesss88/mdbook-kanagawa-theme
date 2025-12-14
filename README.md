@@ -148,6 +148,13 @@ header_tags   = "Popular tags"
 # Optional: prepend an @import to the code theme CSS
 # code_css_import = "theme/custom-code.css"
 
+# Optional: support mdbook-kanagawa-theme in footer
+# support_footer = true # Displays "Made with mdbook-kanagawa-theme" in footer
+# Optionally override to a different link
+# support_footer_href = "https://github.com/wolfpack1/bigDog's-project"
+# support_footer_text = "Made in the U.S.A."
+
+
 [output.html]
 # Do NOT use additional-css for the main theme override.
 # default-theme still controls which theme class is set (rust, coal, navy, …)
