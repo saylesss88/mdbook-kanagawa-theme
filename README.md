@@ -18,6 +18,8 @@ top-over-bottom layout:
 
 ![screenshot1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/landing1.png)
 
+![screenshot1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/kanagawa-example.png)
+
 <details>
 <summary> ✔️ Dracula </summary>
 

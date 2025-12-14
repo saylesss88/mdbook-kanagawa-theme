@@ -54,6 +54,15 @@ struct KanagawaConfig {
 
     /// If true, don't write `theme/css/kanagawa-code.css` at all.
     disable_builtin_code_css: Option<bool>,
+
+    /// If true, append a small "Made with mdbook-kanagawa-theme" footer to pages.
+    support_footer: Option<bool>,
+
+    /// Optional URL for the footer link.
+    support_footer_href: Option<String>,
+
+    /// Optional footer text (defaults to "Made with mdbook-kanagawa-theme").
+    support_footer_text: Option<String>,
 }
 
 impl Preprocessor for KanagawaTheme {
@@ -120,6 +129,21 @@ impl Preprocessor for KanagawaTheme {
                 .get::<bool>("preprocessor.kanagawa-theme.disable_builtin_code_css")
                 .ok()
                 .flatten(),
+            support_footer: ctx
+                .config
+                .get::<bool>("preprocessor.kanagawa-theme.support_footer")
+                .ok()
+                .flatten(),
+            support_footer_href: ctx
+                .config
+                .get::<String>("preprocessor.kanagawa-theme.support_footer_href")
+                .ok()
+                .flatten(),
+            support_footer_text: ctx
+                .config
+                .get::<String>("preprocessor.kanagawa-theme.support_footer_text")
+                .ok()
+                .flatten(),
         };
 
         // Overwrite index.md with the landing page
@@ -158,6 +182,36 @@ impl Preprocessor for KanagawaTheme {
                     log::warn!("kanagawa-theme: failed to write theme/css/kanagawa-code.css: {e}");
                 }
             }
+        }
+
+        // Optional support footer (opt-in)
+        if cfg.support_footer.unwrap_or(false) {
+            let href = cfg
+                .support_footer_href
+                .as_deref()
+                .unwrap_or("https://github.com/saylesss88/mdbook-kanagawa-theme");
+
+            let text = cfg
+                .support_footer_text
+                .as_deref()
+                .unwrap_or("Made with mdbook-kanagawa-theme");
+
+            let footer_html = format!(
+                r#"
+<footer id="kanagawa-support-footer" style="text-align:center; margin-top: 3rem; font-size: 0.85em; opacity: 0.75;">
+  <p><a href="{href}">{text}</a></p>
+</footer>
+"#
+            );
+
+            book.for_each_mut(|item| {
+                if let BookItem::Chapter(ch) = item {
+                    // Avoid double injection if the preprocessor runs more than once
+                    if !ch.content.contains(r#"id="kanagawa-support-footer""#) {
+                        ch.content.push_str(&footer_html);
+                    }
+                }
+            });
         }
 
         Ok(book)
