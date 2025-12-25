@@ -11,7 +11,8 @@ featured on the landing (for example, as “Latest Posts” or “Recent Notes�
 book's structure stays the same, only your landing page is replaced. (This also
 works with no date listed by using timestamps).
 
-The theme dropdown still works but the themes have a slightly different look.
+mdBook's build-in theme selector still works, but each base theme is re-skinned
+with Kanagawa variables.
 
 The landing page replaces `index.md` with a configurable side‑by‑side or
 top-over-bottom layout:
@@ -19,6 +20,11 @@ top-over-bottom layout:
 ![screenshot1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/landing1.png)
 
 ![screenshot1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/kanagawa-example.png)
+**Live Demo / Showcase**
+
+1. [nix-book (Kanagawa default)](https://saylesss88.github.io/)
+
+2. [privacy-book RethinkDNS guide (Tokyo Night overrides)](https://mako088.github.io/android/RethinkDNS_Guide.html)
 
 <details>
 <summary> ✔️ Dracula </summary>
@@ -149,7 +155,7 @@ header_tags   = "Popular tags"
 # code_css_import = "theme/custom-code.css"
 
 # Optional: support mdbook-kanagawa-theme in footer
-# support_footer = true # Displays "Made with mdbook-kanagawa-theme" in footer
+# support_footer = true # Displays "Made with mdbook-kanagawa-theme" in footer and links to the repo
 # Optionally override to a different link
 # support_footer_href = "https://github.com/wolfpack1/bigDog's-project"
 # support_footer_text = "Made in the U.S.A."
@@ -158,6 +164,7 @@ header_tags   = "Popular tags"
 [output.html]
 # Do NOT use additional-css for the main theme override.
 # default-theme still controls which theme class is set (rust, coal, navy, …)
+# Kanagawa overrides the "navy" pallette specifically
 default-theme = "navy"
 preferred-dark-theme = "navy"
 # Also add kanagawa syntax highlightiing to the code blocks
@@ -774,12 +781,12 @@ Because this crate replaces `theme/css/chrome.css`, it effectively owns the
 visual theme for all built‑in modes (`light`, `rust`, `coal`, `navy`). The
 mdBook theme dropdown and your `default-theme` / `preferred-dark-theme` still
 control which class is applied to the page, but the palette for each of those
-classes is defined by the Kanagawa (or Dracula/Tokyo-Night overridden)
-variables.
+classes is defined by the Kanagawa (or Dracula/Tokyo-Night/Catppuccin
+overridden) variables.
 
 ---
 
-## Stripping the frontmatter
+## Stripping the Frontmatter
 
 mdBook does not parse or strip YAML frontmatter, so the raw block (e.g. any YAML
 keys like `title:`, `date:`, etc.) appears in the HTML.
