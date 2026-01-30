@@ -5,7 +5,7 @@ use mdbook_preprocessor::{
 };
 use serde::Deserialize;
 use std::fs;
-use std::path::PathBuf;
+use std::string::String;
 
 /// mdBook preprocessor that injects a Kanagawa-themed landing page
 /// and wires Kanagawa CSS into the generated HTML output.
@@ -20,8 +20,143 @@ impl Default for KanagawaTheme {
 
 impl KanagawaTheme {
     /// Create a new `KanagawaTheme` preprocessor with no internal state.
-    pub fn new() -> Self {
-        KanagawaTheme
+    #[must_use]
+    pub const fn new() -> Self {
+        Self
+    }
+
+    fn read_config(ctx: &PreprocessorContext) -> KanagawaConfig {
+        KanagawaConfig {
+            landing_title: ctx
+                .config
+                .get("preprocessor.kanagawa-theme.landing_title")
+                .ok()
+                .flatten(),
+            landing_subtitle: ctx
+                .config
+                .get("preprocessor.kanagawa-theme.landing_subtitle")
+                .ok()
+                .flatten(),
+            header_latest: ctx
+                .config
+                .get("preprocessor.kanagawa-theme.header_latest")
+                .ok()
+                .flatten(),
+            header_notes: ctx
+                .config
+                .get("preprocessor.kanagawa-theme.header_notes")
+                .ok()
+                .flatten(),
+            header_tags: ctx
+                .config
+                .get("preprocessor.kanagawa-theme.header_tags")
+                .ok()
+                .flatten(),
+            css_import: ctx
+                .config
+                .get("preprocessor.kanagawa-theme.css_import")
+                .ok()
+                .flatten(),
+            disable_builtin_css: ctx
+                .config
+                .get("preprocessor.kanagawa-theme.disable_builtin_css")
+                .ok()
+                .flatten(),
+            card_layout: ctx
+                .config
+                .get("preprocessor.kanagawa-theme.card_layout")
+                .ok()
+                .flatten(),
+            code_css_import: ctx
+                .config
+                .get("preprocessor.kanagawa-theme.code_css_import")
+                .ok()
+                .flatten(),
+            disable_builtin_code_css: ctx
+                .config
+                .get("preprocessor.kanagawa-theme.disable_builtin_code_css")
+                .ok()
+                .flatten(),
+            support_footer: ctx
+                .config
+                .get("preprocessor.kanagawa-theme.support_footer")
+                .ok()
+                .flatten(),
+            support_footer_href: ctx
+                .config
+                .get("preprocessor.kanagawa-theme.support_footer_href")
+                .ok()
+                .flatten(),
+            support_footer_text: ctx
+                .config
+                .get("preprocessor.kanagawa-theme.support_footer_text")
+                .ok()
+                .flatten(),
+        }
+    }
+
+    fn inject_landing_page(book: &mut Book, cfg: &KanagawaConfig) {
+        let mut injected = false;
+        book.for_each_mut(|item| {
+            if let BookItem::Chapter(ch) = item
+                && ch.path.as_ref().and_then(|p| p.file_stem()) == Some("index".as_ref())
+                && !injected
+            {
+                ch.content = build_landing_page(cfg);
+                injected = true;
+            }
+        });
+    }
+
+    fn write_chrome_css(ctx: &PreprocessorContext, cfg: &KanagawaConfig) {
+        if !cfg.disable_builtin_css.unwrap_or(false) {
+            let css_dir = ctx.root.join("theme").join("css");
+            if let Err(e) = fs::create_dir_all(&css_dir) {
+                log::warn!("kanagawa-theme: failed to create theme/css dir: {e}");
+            } else {
+                let css = build_full_chrome_css(cfg);
+                if let Err(e) = fs::write(css_dir.join("chrome.css"), css) {
+                    log::warn!("kanagawa-theme: failed to write theme/css/chrome.css: {e}");
+                }
+            }
+        }
+    }
+
+    fn write_code_css(ctx: &PreprocessorContext, cfg: &KanagawaConfig) {
+        if !cfg.disable_builtin_code_css.unwrap_or(false) {
+            let css_dir = ctx.root.join("theme").join("css");
+            if let Err(e) = fs::create_dir_all(&css_dir) {
+                log::warn!("kanagawa-theme: failed to create theme/css dir for code CSS: {e}");
+            } else {
+                let css = build_code_css(cfg);
+                if let Err(e) = fs::write(css_dir.join("kanagawa-code.css"), css) {
+                    log::warn!("kanagawa-theme: failed to write theme/css/kanagawa-code.css: {e}");
+                }
+            }
+        }
+    }
+
+    fn add_support_footer(book: &mut Book, cfg: &KanagawaConfig) {
+        if cfg.support_footer.unwrap_or(false) {
+            let href = cfg
+                .support_footer_href
+                .as_deref()
+                .unwrap_or("https://github.com/saylesss88/mdbook-kanagawa-theme");
+            let text = cfg
+                .support_footer_text
+                .as_deref()
+                .unwrap_or("Made with mdbook-kanagawa-theme");
+            let footer_html = format!(
+                r#"<footer id="kanagawa-support-footer" style="text-align:center; margin-top: 3rem; font-size: 0.85em; opacity: 0.75;"><p><a href="{href}">{text}</a></p></footer>"#
+            );
+            book.for_each_mut(|item| {
+                if let BookItem::Chapter(ch) = item
+                    && !ch.content.contains(r#"id="kanagawa-support-footer""#)
+                {
+                    ch.content.push_str(&footer_html);
+                }
+            });
+        }
     }
 }
 
@@ -32,35 +167,26 @@ struct KanagawaConfig {
     landing_title: Option<String>,
     /// Landing page subtitle
     landing_subtitle: Option<String>,
-
     /// Column header for the "Latest posts" card.
     header_latest: Option<String>,
     /// Column header text for the "Recent notes" card.
     header_notes: Option<String>,
     /// Column header for the "Popular tags" card.
     header_tags: Option<String>,
-
     /// Optional CSS `@import` to prepend at the top of `theme/css/chrome.css`.
     css_import: Option<String>,
-
     /// If true, don't write `theme/css/chrome.css` at all
     disable_builtin_css: Option<bool>,
-
     /// Card layout preset: "compact" (default) or "wide"
     card_layout: Option<String>,
-
     /// Optional CSS `@import` to prepend at the top of the code theme CSS.
     code_css_import: Option<String>,
-
     /// If true, don't write `theme/css/kanagawa-code.css` at all.
     disable_builtin_code_css: Option<bool>,
-
     /// If true, append a small "Made with mdbook-kanagawa-theme" footer to pages.
     support_footer: Option<bool>,
-
     /// Optional URL for the footer link.
     support_footer_href: Option<String>,
-
     /// Optional footer text (defaults to "Made with mdbook-kanagawa-theme").
     support_footer_text: Option<String>,
 }
@@ -68,7 +194,7 @@ struct KanagawaConfig {
 impl Preprocessor for KanagawaTheme {
     /// Returns the preprocessor name as used in `book.toml`
     /// under `[preprocessor.kanagawa-theme]`.
-    fn name(&self) -> &str {
+    fn name(&self) -> &'static str {
         "kanagawa-theme"
     }
 
@@ -77,143 +203,11 @@ impl Preprocessor for KanagawaTheme {
     /// * replace `index.md` with a dynamic landing page, and
     /// * optionally write `theme/css/chrome.css` and `theme/css/kanagawa-code.css`.
     fn run(&self, ctx: &PreprocessorContext, mut book: Book) -> Result<Book, Error> {
-        // Read config from [preprocessor.kanagawa-theme] in `book.toml`
-        let cfg = KanagawaConfig {
-            landing_title: ctx
-                .config
-                .get::<String>("preprocessor.kanagawa-theme.landing_title")
-                .ok()
-                .flatten(),
-            landing_subtitle: ctx
-                .config
-                .get::<String>("preprocessor.kanagawa-theme.landing_subtitle")
-                .ok()
-                .flatten(),
-            header_latest: ctx
-                .config
-                .get::<String>("preprocessor.kanagawa-theme.header_latest")
-                .ok()
-                .flatten(),
-            header_notes: ctx
-                .config
-                .get::<String>("preprocessor.kanagawa-theme.header_notes")
-                .ok()
-                .flatten(),
-            header_tags: ctx
-                .config
-                .get::<String>("preprocessor.kanagawa-theme.header_tags")
-                .ok()
-                .flatten(),
-            css_import: ctx
-                .config
-                .get::<String>("preprocessor.kanagawa-theme.css_import")
-                .ok()
-                .flatten(),
-            disable_builtin_css: ctx
-                .config
-                .get::<bool>("preprocessor.kanagawa-theme.disable_builtin_css")
-                .ok()
-                .flatten(),
-            card_layout: ctx
-                .config
-                .get::<String>("preprocessor.kanagawa-theme.card_layout")
-                .ok()
-                .flatten(),
-            code_css_import: ctx
-                .config
-                .get::<String>("preprocessor.kanagawa-theme.code_css_import")
-                .ok()
-                .flatten(),
-            disable_builtin_code_css: ctx
-                .config
-                .get::<bool>("preprocessor.kanagawa-theme.disable_builtin_code_css")
-                .ok()
-                .flatten(),
-            support_footer: ctx
-                .config
-                .get::<bool>("preprocessor.kanagawa-theme.support_footer")
-                .ok()
-                .flatten(),
-            support_footer_href: ctx
-                .config
-                .get::<String>("preprocessor.kanagawa-theme.support_footer_href")
-                .ok()
-                .flatten(),
-            support_footer_text: ctx
-                .config
-                .get::<String>("preprocessor.kanagawa-theme.support_footer_text")
-                .ok()
-                .flatten(),
-        };
-
-        // Overwrite index.md with the landing page
-        let mut landing_injected = false;
-        book.for_each_mut(|item| {
-            if let BookItem::Chapter(chapter) = item
-                && chapter.path.as_ref().and_then(|p| p.file_stem()) == Some("index".as_ref())
-                && !landing_injected
-            {
-                chapter.content = build_landing_page(&cfg);
-                landing_injected = true;
-            }
-        });
-
-        // Write theme/css/chrome.css to override the built-in theme.
-        if !cfg.disable_builtin_css.unwrap_or(false) {
-            let css_dir: PathBuf = ctx.root.join("theme").join("css");
-            if let Err(e) = fs::create_dir_all(&css_dir) {
-                log::warn!("kanagawa-theme: failed to create theme/css dir: {e}");
-            } else {
-                let css = build_full_chrome_css(&cfg);
-                if let Err(e) = fs::write(css_dir.join("chrome.css"), css) {
-                    log::warn!("kanagawa-theme: failed to write theme/css/chrome.css: {e}");
-                }
-            }
-        }
-
-        // Write Kanagawa code syntax CSS (highlight.js classes) by default.
-        if !cfg.disable_builtin_code_css.unwrap_or(false) {
-            let css_dir: PathBuf = ctx.root.join("theme").join("css");
-            if let Err(e) = fs::create_dir_all(&css_dir) {
-                log::warn!("kanagawa-theme: failed to create theme/css dir for code CSS: {e}");
-            } else {
-                let css = build_code_css(&cfg);
-                if let Err(e) = fs::write(css_dir.join("kanagawa-code.css"), css) {
-                    log::warn!("kanagawa-theme: failed to write theme/css/kanagawa-code.css: {e}");
-                }
-            }
-        }
-
-        // Optional support footer (opt-in)
-        if cfg.support_footer.unwrap_or(false) {
-            let href = cfg
-                .support_footer_href
-                .as_deref()
-                .unwrap_or("https://github.com/saylesss88/mdbook-kanagawa-theme");
-
-            let text = cfg
-                .support_footer_text
-                .as_deref()
-                .unwrap_or("Made with mdbook-kanagawa-theme");
-
-            let footer_html = format!(
-                r#"
-<footer id="kanagawa-support-footer" style="text-align:center; margin-top: 3rem; font-size: 0.85em; opacity: 0.75;">
-  <p><a href="{href}">{text}</a></p>
-</footer>
-"#
-            );
-
-            book.for_each_mut(|item| {
-                if let BookItem::Chapter(ch) = item {
-                    // Avoid double injection if the preprocessor runs more than once
-                    if !ch.content.contains(r#"id="kanagawa-support-footer""#) {
-                        ch.content.push_str(&footer_html);
-                    }
-                }
-            });
-        }
-
+        let cfg = Self::read_config(ctx);
+        Self::inject_landing_page(&mut book, &cfg);
+        Self::write_chrome_css(ctx, &cfg);
+        Self::write_code_css(ctx, &cfg);
+        Self::add_support_footer(&mut book, &cfg);
         Ok(book)
     }
 
@@ -432,7 +426,7 @@ const LANDING_PAGE_TEMPLATE: &str = r#"<!-- kanagawa landing -->
 
 /// Theme variables: map the Kanagawa color palette onto mdBook theme classes,
 /// providing dark and light variants via CSS custom properties.
-const KANAGAWA_VARS: &str = r#":root.navy,
+const KANAGAWA_VARS: &str = r":root.navy,
 .navy,
 html.navy,
 body.navy {
@@ -454,6 +448,9 @@ body.navy {
   --heading: #7AA89F;   /* waveAqua2 */
   --links:  #7FB4CA;    /* springBlue: inline links */
   --bold: #C8C093;      /* oldWhite */
+  --sidebar-title: #E46876;  /* Kanagawa Wave Red */
+  --sidebar-active: var(--sidebar-title)
+
 }
 
 :root.light,
@@ -479,11 +476,24 @@ body.rust {
   /* kanagawa aqua for headings */
   --heading: #7AA89F;   /* waveAqua2 */
 }
-"#;
+";
 
 /// Extra Kanagawa styles layered on top of mdBook's chrome.css,
 /// including the animated wave background, landing layout, and card styling.
-const KANAGAWA_EXTRA_CSS: &str = r#"body {
+const KANAGAWA_EXTRA_CSS: &str = r"
+.sidebar .chapter li.part-title {
+  color: var(--sidebar-title, var(--red)) !important;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* If your category headers are just text nodes inside the li */
+#sidebar .chapter li.chapter-item > a.active {
+  color: var(--sidebar-title, var(--red)) !important;
+  font-weight: 600;
+}
+
+body {
   background: var(--bg);
   color: var(--fg);
 }
@@ -641,11 +651,11 @@ a:hover {
   background: var(--accent);
   color: var(--bg);
 }
-"#;
+";
 
 /// Kanagawa-flavored syntax highlighting for highlight.js.
 /// This assumes mdBook's default highlighter and class names.
-const KANAGAWA_CODE_CSS: &str = r#"
+const KANAGAWA_CODE_CSS: &str = r"
 /* Block code: slightly lifted off main bg/card */
 pre code.hljs {
   background: #2a3146; /* pick a shade with clear contrast vs --bg and --bg-alt */
@@ -706,4 +716,4 @@ pre code.hljs {
 .hljs-punctuation {
   color: var(--fg);
 }
-"#;
+";

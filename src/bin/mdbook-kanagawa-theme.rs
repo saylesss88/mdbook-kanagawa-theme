@@ -8,6 +8,7 @@ use mdbook_preprocessor::{MDBOOK_VERSION, Preprocessor, errors::Error, parse_inp
 use semver::{Version, VersionReq};
 use std::io;
 use std::process;
+use std::string::String;
 
 /// Main function for the preprocessor binary.
 ///
@@ -29,8 +30,8 @@ fn main() {
 
     // Human-friendly version flag:
     // `mdbook-kanagawa-theme --version` or `-V` prints the crate version and exits.
-    if args.get(1).map(|s| s.as_str()) == Some("--version")
-        || args.get(1).map(|s| s.as_str()) == Some("-V")
+    if args.get(1).map(String::as_str) == Some("--version")
+        || args.get(1).map(String::as_str) == Some("-V")
     {
         println!("{}", env!("CARGO_PKG_VERSION"));
         process::exit(0);
@@ -40,9 +41,9 @@ fn main() {
     //
     // mdBook calls this to ask whether the preprocessor supports a given renderer.
     // Returning exit code 0 means "yes", non-zero means "no".
-    if args.get(1).map(|s| s.as_str()) == Some("supports") {
+    if args.get(1).map(String::as_str) == Some("supports") {
         // Default to "html" if no renderer is provided.
-        let renderer = args.get(2).map(|s| s.as_str()).unwrap_or("html");
+        let renderer = args.get(2).map_or("html", String::as_str);
         if renderer == "html" {
             // Support the HTML renderer.
             process::exit(0);
