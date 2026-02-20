@@ -482,7 +482,7 @@ body.rust {
 /// including the animated wave background, landing layout, and card styling.
 const KANAGAWA_EXTRA_CSS: &str = r"
 .sidebar .chapter li.part-title {
-  color: var(--sidebar-title, var(--red)) !important;
+  color: var(--sidebar-title, var(--red));
   font-weight: 700;
   letter-spacing: 0.02em;
 }
