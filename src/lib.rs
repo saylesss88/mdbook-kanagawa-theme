@@ -26,23 +26,13 @@ impl KanagawaTheme {
     }
 
     fn read_config(ctx: &PreprocessorContext) -> KanagawaConfig {
-        let value = ctx
-            .config
-            .get::<KanagawaConfig>("preprocessor.kanagawa-theme");
-
-        match value {
-            // Case 1: The config section exists
-            Ok(Some(v)) => v,
-
-            // Case 2: The config section is missing
-            Ok(None) => KanagawaConfig::default(),
-
-            // Case 3: Error reading config (log it and fallback)
-            Err(e) => {
-                log::error!("kanagawa-theme: error reading config: {e}");
-                KanagawaConfig::default()
-            }
-        }
+        ctx.config
+            .get::<KanagawaConfig>("preprocessor.kanagawa-theme")
+            .unwrap_or_else(|e| {
+                eprintln!("kanagawa-theme: [Error] Failed to parse config, using defaults: {e}");
+                None
+            })
+            .unwrap_or_default()
     }
 
     fn inject_landing_page(book: &mut Book, cfg: &KanagawaConfig) {
@@ -68,14 +58,14 @@ impl KanagawaTheme {
 
         // 2. Guard: Handle dir creation error early
         if let Err(e) = fs::create_dir_all(&css_dir) {
-            log::warn!("kanagawa-theme: failed to create theme/css dir: {e}");
+            eprintln!("\x1b[31kanagawa-theme: failed to create theme/css dir\x1b[0m: {e}");
             return;
         }
 
         // 3. Main Logic:
         let css = build_full_chrome_css(cfg);
         if let Err(e) = fs::write(css_dir.join("chrome.css"), css) {
-            log::warn!("kanagawa-theme: failed to write theme/css/chrome.css: {e}");
+            eprintln!("\x1b[31kanagawa-theme: failed to write theme/css/chrome.css\x1b[0m: {e}");
         }
     }
 
@@ -83,11 +73,15 @@ impl KanagawaTheme {
         if !cfg.disable_builtin_code_css {
             let css_dir = ctx.root.join("theme").join("css");
             if let Err(e) = fs::create_dir_all(&css_dir) {
-                log::warn!("kanagawa-theme: failed to create theme/css dir for code CSS: {e}");
+                eprintln!(
+                    "\x1b[31kanagawa-theme: failed to create theme/css dir for code CSS]x1b[0m: {e}"
+                );
             } else {
                 let css = build_code_css(cfg);
                 if let Err(e) = fs::write(css_dir.join("kanagawa-code.css"), css) {
-                    log::warn!("kanagawa-theme: failed to write theme/css/kanagawa-code.css: {e}");
+                    eprintln!(
+                        "\x1b[31kanagawa-theme: failed to write theme/css/kanagawa-code.css\x1b[0m: {e}"
+                    );
                 }
             }
         }
