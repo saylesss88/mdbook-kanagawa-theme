@@ -26,72 +26,22 @@ impl KanagawaTheme {
     }
 
     fn read_config(ctx: &PreprocessorContext) -> KanagawaConfig {
-        KanagawaConfig {
-            landing_title: ctx
-                .config
-                .get("preprocessor.kanagawa-theme.landing_title")
-                .ok()
-                .flatten(),
-            landing_subtitle: ctx
-                .config
-                .get("preprocessor.kanagawa-theme.landing_subtitle")
-                .ok()
-                .flatten(),
-            header_latest: ctx
-                .config
-                .get("preprocessor.kanagawa-theme.header_latest")
-                .ok()
-                .flatten(),
-            header_notes: ctx
-                .config
-                .get("preprocessor.kanagawa-theme.header_notes")
-                .ok()
-                .flatten(),
-            header_tags: ctx
-                .config
-                .get("preprocessor.kanagawa-theme.header_tags")
-                .ok()
-                .flatten(),
-            css_import: ctx
-                .config
-                .get("preprocessor.kanagawa-theme.css_import")
-                .ok()
-                .flatten(),
-            disable_builtin_css: ctx
-                .config
-                .get("preprocessor.kanagawa-theme.disable_builtin_css")
-                .ok()
-                .flatten(),
-            card_layout: ctx
-                .config
-                .get("preprocessor.kanagawa-theme.card_layout")
-                .ok()
-                .flatten(),
-            code_css_import: ctx
-                .config
-                .get("preprocessor.kanagawa-theme.code_css_import")
-                .ok()
-                .flatten(),
-            disable_builtin_code_css: ctx
-                .config
-                .get("preprocessor.kanagawa-theme.disable_builtin_code_css")
-                .ok()
-                .flatten(),
-            support_footer: ctx
-                .config
-                .get("preprocessor.kanagawa-theme.support_footer")
-                .ok()
-                .flatten(),
-            support_footer_href: ctx
-                .config
-                .get("preprocessor.kanagawa-theme.support_footer_href")
-                .ok()
-                .flatten(),
-            support_footer_text: ctx
-                .config
-                .get("preprocessor.kanagawa-theme.support_footer_text")
-                .ok()
-                .flatten(),
+        let value = ctx
+            .config
+            .get::<KanagawaConfig>("preprocessor.kanagawa-theme");
+
+        match value {
+            // Case 1: The config section exists
+            Ok(Some(v)) => v,
+
+            // Case 2: The config section is missing
+            Ok(None) => KanagawaConfig::default(),
+
+            // Case 3: Error reading config (log it and fallback)
+            Err(e) => {
+                log::error!("kanagawa-theme: error reading config: {e}");
+                KanagawaConfig::default()
+            }
         }
     }
 
@@ -109,21 +59,28 @@ impl KanagawaTheme {
     }
 
     fn write_chrome_css(ctx: &PreprocessorContext, cfg: &KanagawaConfig) {
-        if !cfg.disable_builtin_css.unwrap_or(false) {
-            let css_dir = ctx.root.join("theme").join("css");
-            if let Err(e) = fs::create_dir_all(&css_dir) {
-                log::warn!("kanagawa-theme: failed to create theme/css dir: {e}");
-            } else {
-                let css = build_full_chrome_css(cfg);
-                if let Err(e) = fs::write(css_dir.join("chrome.css"), css) {
-                    log::warn!("kanagawa-theme: failed to write theme/css/chrome.css: {e}");
-                }
-            }
+        // 1. Guard: If disabled, exit early
+        if cfg.disable_builtin_css {
+            return;
+        }
+
+        let css_dir = ctx.root.join("theme").join("css");
+
+        // 2. Guard: Handle dir creation error early
+        if let Err(e) = fs::create_dir_all(&css_dir) {
+            log::warn!("kanagawa-theme: failed to create theme/css dir: {e}");
+            return;
+        }
+
+        // 3. Main Logic:
+        let css = build_full_chrome_css(cfg);
+        if let Err(e) = fs::write(css_dir.join("chrome.css"), css) {
+            log::warn!("kanagawa-theme: failed to write theme/css/chrome.css: {e}");
         }
     }
 
     fn write_code_css(ctx: &PreprocessorContext, cfg: &KanagawaConfig) {
-        if !cfg.disable_builtin_code_css.unwrap_or(false) {
+        if !cfg.disable_builtin_code_css {
             let css_dir = ctx.root.join("theme").join("css");
             if let Err(e) = fs::create_dir_all(&css_dir) {
                 log::warn!("kanagawa-theme: failed to create theme/css dir for code CSS: {e}");
@@ -137,17 +94,16 @@ impl KanagawaTheme {
     }
 
     fn add_support_footer(book: &mut Book, cfg: &KanagawaConfig) {
-        if cfg.support_footer.unwrap_or(false) {
+        if cfg.support_footer {
             let href = cfg
                 .support_footer_href
                 .as_deref()
                 .unwrap_or("https://github.com/saylesss88/mdbook-kanagawa-theme");
-            let text = cfg
-                .support_footer_text
-                .as_deref()
-                .unwrap_or("Made with mdbook-kanagawa-theme");
+
             let footer_html = format!(
-                r#"<footer id="kanagawa-support-footer" style="text-align:center; margin-top: 3rem; font-size: 0.85em; opacity: 0.75;"><p><a href="{href}">{text}</a></p></footer>"#
+                r#"<footer id="kanagawa-support-footer" style="text-align:center; margin-top: 3rem; font-size: 0.85em; opacity: 0.75;"><p><a href="{href}">{text}</a></p></footer>"#,
+                href = href,
+                text = &cfg.support_footer_text // Reference instead of clone
             );
             book.for_each_mut(|item| {
                 if let BookItem::Chapter(ch) = item
@@ -160,36 +116,114 @@ impl KanagawaTheme {
     }
 }
 
-#[derive(Debug, Default, Deserialize)]
-/// Configuration loaded from `[preprocessor.kanagawa-theme]` in `book.toml`.
-struct KanagawaConfig {
-    /// Landing page main title
-    landing_title: Option<String>,
-    /// Landing page subtitle
-    landing_subtitle: Option<String>,
-    /// Column header for the "Latest posts" card.
-    header_latest: Option<String>,
-    /// Column header text for the "Recent notes" card.
-    header_notes: Option<String>,
-    /// Column header for the "Popular tags" card.
-    header_tags: Option<String>,
-    /// Optional CSS `@import` to prepend at the top of `theme/css/chrome.css`.
-    css_import: Option<String>,
-    /// If true, don't write `theme/css/chrome.css` at all
-    disable_builtin_css: Option<bool>,
-    /// Card layout preset: "compact" (default) or "wide"
-    card_layout: Option<String>,
-    /// Optional CSS `@import` to prepend at the top of the code theme CSS.
-    code_css_import: Option<String>,
-    /// If true, don't write `theme/css/kanagawa-code.css` at all.
-    disable_builtin_code_css: Option<bool>,
-    /// If true, append a small "Made with mdbook-kanagawa-theme" footer to pages.
-    support_footer: Option<bool>,
-    /// Optional URL for the footer link.
-    support_footer_href: Option<String>,
-    /// Optional footer text (defaults to "Made with mdbook-kanagawa-theme").
-    support_footer_text: Option<String>,
+#[derive(Debug, Deserialize, Default, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum CardLayout {
+    #[default]
+    Compact,
+    Wide,
 }
+
+#[derive(Debug, Deserialize)]
+#[serde(default)] // This allows us to omit the [preprocessor.kanagawa-theme] table entirely
+pub struct KanagawaConfig {
+    #[serde(default = "default_title")]
+    pub landing_title: String,
+    #[serde(default = "default_subtitle")]
+    pub landing_subtitle: String,
+
+    #[serde(default = "default_latest")]
+    pub header_latest: String,
+    #[serde(default = "default_notes")]
+    pub header_notes: String,
+    #[serde(default = "default_tags")]
+    pub header_tags: String,
+
+    pub card_layout: CardLayout, // Already has #[default] on the Enum
+
+    // Fields that represent "On/Off" or "Something/Nothing" should stay as Option/bool
+    pub css_import: Option<String>,
+    pub disable_builtin_css: bool, // Default is false
+
+    pub code_css_import: Option<String>,
+    pub disable_builtin_code_css: bool,
+
+    pub support_footer: bool,
+    pub support_footer_href: Option<String>,
+    #[serde(default = "default_footer_text")]
+    pub support_footer_text: String,
+}
+
+// --- Helper functions for Serde defaults ---
+fn default_title() -> String {
+    "mdTheme".into()
+}
+fn default_subtitle() -> String {
+    "A dope landing powered by rust".into()
+}
+fn default_latest() -> String {
+    "Latest Posts".into()
+}
+fn default_notes() -> String {
+    "Recent Notes".into()
+}
+fn default_tags() -> String {
+    "Popular Tags".into()
+}
+fn default_footer_text() -> String {
+    "Made with mdbook-kanagawa-theme".into()
+}
+
+// --- Implement Default manually to use these same helpers ---
+impl Default for KanagawaConfig {
+    fn default() -> Self {
+        Self {
+            landing_title: default_title(),
+            landing_subtitle: default_subtitle(),
+            header_latest: default_latest(),
+            header_notes: default_notes(),
+            header_tags: default_tags(),
+            card_layout: CardLayout::default(),
+            css_import: None,
+            disable_builtin_css: false,
+            code_css_import: None,
+            disable_builtin_code_css: false,
+            support_footer: false,
+            support_footer_href: None,
+            support_footer_text: default_footer_text(),
+        }
+    }
+}
+// #[derive(Debug, Default, Deserialize)]
+// /// Configuration loaded from `[preprocessor.kanagawa-theme]` in `book.toml`.
+// struct KanagawaConfig {
+//     /// Landing page main title
+//     landing_title: Option<String>,
+//     /// Landing page subtitle
+//     landing_subtitle: Option<String>,
+//     /// Column header for the "Latest posts" card.
+//     header_latest: Option<String>,
+//     /// Column header text for the "Recent notes" card.
+//     header_notes: Option<String>,
+//     /// Column header for the "Popular tags" card.
+//     header_tags: Option<String>,
+//     /// Optional CSS `@import` to prepend at the top of `theme/css/chrome.css`.
+//     css_import: Option<String>,
+//     /// If true, don't write `theme/css/chrome.css` at all
+//     disable_builtin_css: Option<bool>,
+//     /// Card layout preset: "compact" (default) or "wide"
+//     card_layout: CardLayout,
+//     /// Optional CSS `@import` to prepend at the top of the code theme CSS.
+//     code_css_import: Option<String>,
+//     /// If true, don't write `theme/css/kanagawa-code.css` at all.
+//     disable_builtin_code_css: Option<bool>,
+//     /// If true, append a small "Made with mdbook-kanagawa-theme" footer to pages.
+//     support_footer: Option<bool>,
+//     /// Optional URL for the footer link.
+//     support_footer_href: Option<String>,
+//     /// Optional footer text (defaults to "Made with mdbook-kanagawa-theme").
+//     support_footer_text: Option<String>,
+// }
 
 impl Preprocessor for KanagawaTheme {
     /// Returns the preprocessor name as used in `book.toml`
@@ -220,35 +254,61 @@ impl Preprocessor for KanagawaTheme {
 
 /// Build the HTML source for the Kanagawa landing page by
 /// filling `LANDING_PAGE_TEMPLATE` with configured titles, headers,
-/// and the selected card layout.
 fn build_landing_page(cfg: &KanagawaConfig) -> String {
-    let title = cfg.landing_title.as_deref().unwrap_or("mdTheme");
-    let subtitle = cfg
-        .landing_subtitle
-        .as_deref()
-        .unwrap_or("A dope landing powered by rust");
-
-    let header_latest = cfg.header_latest.as_deref().unwrap_or("Latest Posts");
-    let header_notes = cfg.header_notes.as_deref().unwrap_or("Recent Notes");
-    let header_tags = cfg.header_tags.as_deref().unwrap_or("Popular Tags");
-
-    let layout = cfg.card_layout.as_deref().unwrap_or("compact");
-
-    let grid_class = match layout {
-        "wide" => "grid grid-wide",
-        _ => "grid",
+    let grid_class = match cfg.card_layout {
+        CardLayout::Wide => "grid grid-wide",
+        CardLayout::Compact => "grid",
     };
 
     let mut html = LANDING_PAGE_TEMPLATE.to_owned();
-    html = html.replace("{{LANDING_TITLE}}", title);
-    html = html.replace("{{LANDING_SUBTITLE}}", subtitle);
-    html = html.replace("{{HEADER_LATEST}}", header_latest);
-    html = html.replace("{{HEADER_NOTES}}", header_notes);
-    html = html.replace("{{HEADER_TAGS}}", header_tags);
+
+    // Core replacements
+    html = html.replace("{{LANDING_TITLE}}", &cfg.landing_title);
+    html = html.replace("{{LANDING_SUBTITLE}}", &cfg.landing_subtitle);
+
+    // Header replacements - This is what was missing!
+    html = html.replace("{{HEADER_LATEST}}", &cfg.header_latest);
+    html = html.replace("{{HEADER_NOTES}}", &cfg.header_notes);
+    html = html.replace("{{HEADER_TAGS}}", &cfg.header_tags);
+
+    // Layout replacement
     html = html.replace("{{GRID_CLASS}}", grid_class);
 
     html
 }
+// fn build_landing_page(cfg: &KanagawaConfig) -> String {
+//     let title = cfg.landing_title.as_deref().unwrap_or("mdTheme");
+//     let subtitle = cfg
+//         .landing_subtitle
+//         .as_deref()
+//         .unwrap_or("A dope landing powered by rust");
+
+//     let header_latest = cfg.header_latest.as_deref().unwrap_or("Latest Posts");
+//     let header_notes = cfg.header_notes.as_deref().unwrap_or("Recent Notes");
+//     let header_tags = cfg.header_tags.as_deref().unwrap_or("Popular Tags");
+
+//     let grid_class = match cfg.card_layout {
+//         CardLayout::Wide => "grid grid-wide",
+//         CardLayout::Compact => "grid",
+//     };
+
+//     // let layout = cfg.card_layout.as_deref().unwrap_or("compact");
+
+//     // let grid_class = match layout {
+//     //     "wide" => "grid grid-wide",
+//     //     _ => "grid",
+//     // };
+
+//     let mut html = LANDING_PAGE_TEMPLATE.to_owned();
+//     html = html.replace("{{LANDING_TITLE}}", title);
+//     html = html.replace("{{LANDING_SUBTITLE}}", subtitle);
+//     html = html.replace("{{HEADER_LATEST}}", header_latest);
+//     html = html.replace("{{HEADER_NOTES}}", header_notes);
+//     html = html.replace("{{HEADER_TAGS}}", header_tags);
+//     html = html.replace("{{GRID_CLASS}}", grid_class);
+
+//     html
+// }
 
 /// Build a complete `chrome.css` by:
 /// 1. optionally inserting a user-provided `@import`,
@@ -545,7 +605,8 @@ a:hover {
   position: fixed;
   inset: 0;
   z-index: -1;
-  overflow: hidden;
+  background: var(--bg);
+  // overflow: hidden;
 }
 
 .wave {
@@ -623,9 +684,16 @@ a:hover {
 .card {
   background: var(--bg-alt);
   padding: 2rem;
-  border-radius: 16px;
-  border: 1px solid rgba(126,156,216,0.2);
-  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  // border: 1px solid rgba(126,156,216,0.2);
+  // backdrop-filter: blur(10px);
+}
+
+.card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px)
 }
 
 .card h2 {
