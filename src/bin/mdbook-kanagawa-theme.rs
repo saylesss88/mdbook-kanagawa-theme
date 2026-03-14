@@ -6,9 +6,7 @@
 use mdbook_kanagawa_theme::KanagawaTheme;
 use mdbook_preprocessor::{MDBOOK_VERSION, Preprocessor, errors::Error, parse_input};
 use semver::{Version, VersionReq};
-use std::io;
-use std::process;
-use std::string::String;
+use std::{env, io, process};
 
 /// Main function for the preprocessor binary.
 ///
@@ -16,48 +14,33 @@ use std::string::String;
 /// - Initialize logging.
 /// - Handle user-facing flags like `--version` / `-V`.
 /// - Implement the `supports` probe required by mdBook.
-/// - Delegate actual preprocessing work to `run`.
 fn main() {
-    // Initialize env_logger so `log` macros in the preprocessor produce output
-    // when RUST_LOG is set.
     env_logger::init();
 
-    // Construct the concrete preprocessor implementation.
     let pre = KanagawaTheme::new();
+    let args: Vec<String> = env::args().collect();
 
-    // Collect raw CLI arguments once for simple flag parsing.
-    let args: Vec<String> = std::env::args().collect();
-
-    // Human-friendly version flag:
-    // `mdbook-kanagawa-theme --version` or `-V` prints the crate version and exits.
-    if args.get(1).map(String::as_str) == Some("--version")
-        || args.get(1).map(String::as_str) == Some("-V")
-    {
-        println!("{}", env!("CARGO_PKG_VERSION"));
-        process::exit(0);
-    }
-
-    // mdBook protocol: `preprocessor supports <renderer>`
-    //
-    // mdBook calls this to ask whether the preprocessor supports a given renderer.
-    // Returning exit code 0 means "yes", non-zero means "no".
-    if args.get(1).map(String::as_str) == Some("supports") {
-        // Default to "html" if no renderer is provided.
-        let renderer = args.get(2).map_or("html", String::as_str);
-        if renderer == "html" {
-            // Support the HTML renderer.
+    // Check for flags
+    match args.get(1).map(String::as_str) {
+        Some("--version" | "-V") => {
+            println!("{}", env!("CARGO_PKG_VERSION"));
             process::exit(0);
-        } else {
-            // Unsupported renderer.
+        }
+        Some("supports") => {
+            let renderer = args.get(2).map_or("html", |s| s.as_str());
+            // Use the trait method instead of hardcoding "html" here
+            if pre.supports_renderer(renderer).unwrap_or(false) {
+                process::exit(0);
+            }
             process::exit(1);
         }
-    }
-
-    // Normal preprocessor mode: read from stdin, process, write to stdout.
-    if let Err(e) = run(&pre) {
-        // Print a human-readable error to stderr and exit with failure.
-        eprintln!("{e}");
-        process::exit(1);
+        _ => {
+            // Normal execution
+            if let Err(e) = run(&pre) {
+                eprintln!("Error: {e}");
+                process::exit(1);
+            }
+        }
     }
 }
 
@@ -74,17 +57,14 @@ fn run(pre: &dyn Preprocessor) -> Result<(), Error> {
     // Read and deserialize the context + book from stdin using mdBook helpers.
     let (ctx, book) = parse_input(io::stdin())?;
 
-    // Parse the mdBook version that invoked this preprocessor.
-    let book_version = Version::parse(&ctx.mdbook_version)?;
-    // Parse the version requirement this preprocessor declares compatibility with.
-    let version_req = VersionReq::parse(MDBOOK_VERSION)?;
-
-    // If the running mdBook does not satisfy our expected version range,
-    // emit a warning but continue. This helps diagnose subtle incompatibilities.
-    if !version_req.matches(&book_version) {
+    // Version Check
+    if let (Ok(book_v), Ok(req_v)) = (
+        Version::parse(&ctx.mdbook_version),
+        VersionReq::parse(MDBOOK_VERSION),
+    ) && !req_v.matches(&book_v)
+    {
         log::warn!(
-            "Warning: The {} plugin was built against version {} of mdbook, \
-             but we're being called from version {}",
+            "Plugin {} (built for mdbook {}) called by mdbook {}",
             pre.name(),
             MDBOOK_VERSION,
             ctx.mdbook_version
