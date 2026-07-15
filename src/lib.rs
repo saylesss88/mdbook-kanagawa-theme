@@ -187,36 +187,6 @@ impl Default for KanagawaConfig {
         }
     }
 }
-// #[derive(Debug, Default, Deserialize)]
-// /// Configuration loaded from `[preprocessor.kanagawa-theme]` in `book.toml`.
-// struct KanagawaConfig {
-//     /// Landing page main title
-//     landing_title: Option<String>,
-//     /// Landing page subtitle
-//     landing_subtitle: Option<String>,
-//     /// Column header for the "Latest posts" card.
-//     header_latest: Option<String>,
-//     /// Column header text for the "Recent notes" card.
-//     header_notes: Option<String>,
-//     /// Column header for the "Popular tags" card.
-//     header_tags: Option<String>,
-//     /// Optional CSS `@import` to prepend at the top of `theme/css/chrome.css`.
-//     css_import: Option<String>,
-//     /// If true, don't write `theme/css/chrome.css` at all
-//     disable_builtin_css: Option<bool>,
-//     /// Card layout preset: "compact" (default) or "wide"
-//     card_layout: CardLayout,
-//     /// Optional CSS `@import` to prepend at the top of the code theme CSS.
-//     code_css_import: Option<String>,
-//     /// If true, don't write `theme/css/kanagawa-code.css` at all.
-//     disable_builtin_code_css: Option<bool>,
-//     /// If true, append a small "Made with mdbook-kanagawa-theme" footer to pages.
-//     support_footer: Option<bool>,
-//     /// Optional URL for the footer link.
-//     support_footer_href: Option<String>,
-//     /// Optional footer text (defaults to "Made with mdbook-kanagawa-theme").
-//     support_footer_text: Option<String>,
-// }
 
 impl Preprocessor for KanagawaTheme {
     /// Returns the preprocessor name as used in `book.toml`
