@@ -22,7 +22,7 @@ name = "mdbook-kanagawa-theme"
 path = "src/bin/mdbook-kanagawa-theme.rs"
 
 [dependencies]
-mdbook-preprocessor = "0.5.1"
+mdbook-preprocessor = "0.5.4"
 serde_json = "1.0"
 serde = {version = "1.0", default-features = false}
 semver = {version = "1.0", default-features = false}
