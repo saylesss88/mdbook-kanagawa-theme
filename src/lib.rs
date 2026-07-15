@@ -5,7 +5,6 @@ use mdbook_preprocessor::{
 };
 use serde::Deserialize;
 use std::fs;
-use std::string::String;
 
 /// mdBook preprocessor that injects a Kanagawa-themed landing page
 /// and wires Kanagawa CSS into the generated HTML output.
