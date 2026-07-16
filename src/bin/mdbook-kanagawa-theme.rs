@@ -71,29 +71,3 @@ fn run(pre: &dyn Preprocessor) -> Result<(), Error> {
     serde_json::to_writer(io::stdout(), &processed)?;
     Ok(())
 }
-
-// fn run(pre: &dyn Preprocessor) -> Result<(), Error> {
-//     // Read and deserialize the context + book from stdin using mdBook helpers.
-//     let (ctx, book) = parse_input(io::stdin())?;
-
-//     // Version Check
-//     if let (Ok(book_v), Ok(req_v)) = (
-//         Version::parse(&ctx.mdbook_version),
-//         VersionReq::parse(MDBOOK_VERSION),
-//     ) && !req_v.matches(&book_v)
-//     {
-//         log::warn!(
-//             "Plugin {} (built for mdbook {}) called by mdbook {}",
-//             pre.name(),
-//             MDBOOK_VERSION,
-//             ctx.mdbook_version
-//         );
-//     }
-
-//     // Run the actual preprocessor implementation, transforming the book.
-//     let processed = pre.run(&ctx, book)?;
-
-//     // Serialize the processed book as JSON to stdout so mdBook can consume it.
-//     serde_json::to_writer(io::stdout(), &processed)?;
-//     Ok(())
-// }
