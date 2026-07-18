@@ -1,4 +1,4 @@
-use crate::KanagawaTheme;
+use crate::preprocessor::KanagawaTheme;
 use mdbook_preprocessor::{Preprocessor, PreprocessorContext, book::Book, errors::Error};
 use serde::Deserialize;
 

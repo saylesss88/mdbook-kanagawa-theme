@@ -3,7 +3,7 @@
 /// This binary is invoked by mdBook, reads the book context and contents
 /// from stdin as JSON, runs the `KanagawaTheme` preprocessor, and writes
 /// the transformed book back to stdout in the same JSON format.
-use mdbook_kanagawa_theme::KanagawaTheme;
+use mdbook_kanagawa_theme::preprocessor::KanagawaTheme;
 use mdbook_preprocessor::{MDBOOK_VERSION, Preprocessor, errors::Error, parse_input};
 use semver::{Version, VersionReq};
 use std::{env, io, process};

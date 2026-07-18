@@ -2,6 +2,7 @@ use crate::config::{CardLayout, KanagawaConfig};
 
 /// Build the HTML source for the Kanagawa landing page by
 /// filling `LANDING_PAGE_TEMPLATE` with configured titles, headers,
+#[must_use]
 pub fn build_landing_page(cfg: &KanagawaConfig) -> String {
     let grid_class = match cfg.card_layout {
         CardLayout::Wide => "grid grid-wide",
