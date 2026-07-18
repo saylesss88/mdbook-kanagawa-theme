@@ -681,7 +681,23 @@ a:hover {
 .tag-cloud .tag-pill:hover {
   background: var(--accent);
   color: var(--bg);
+
+.img-wrapper {
+  display: none;
 }
+.checkbox-img:checked ~ .img-wrapper {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(0,0,0,0.85);
+  align-items: center;
+  justify-content: center;
+}
+.checkbox-img:checked ~ .img-wrapper img {
+  max-width: 90vw;
+  max-height: 90vh;
+}}
 ";
 
 /// Kanagawa-flavored syntax highlighting for highlight.js.
