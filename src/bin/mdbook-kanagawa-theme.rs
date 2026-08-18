@@ -53,7 +53,7 @@ fn main() {
 fn run(pre: &dyn Preprocessor) -> Result<(), Error> {
     let (ctx, book) = parse_input(io::stdin())?;
 
-    // Version Check - Using eprintln instead of log::warn
+    // Version Check
     if let (Ok(book_v), Ok(req_v)) = (
         Version::parse(&ctx.mdbook_version),
         VersionReq::parse(MDBOOK_VERSION),

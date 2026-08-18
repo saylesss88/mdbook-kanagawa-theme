@@ -2,96 +2,84 @@
 
 `mdbook-kanagawa-theme` provides an interactive, **blog‑like landing page** and
 a **full visual theme override** for the HTML renderer. It does not replace
-mdBook’s HTML backend, but it does replace the default `theme/css/chrome.css`
-with a Kanagawa‑inspired variant. You can easily swap in any colorscheme you
-like, with Dracula, Tokyo Night, and Catppuccin-Mocha example palettes included.
+`mdBook`'s HTML backend, but it replaces the default `theme/css/chrome.css` with
+a Kanagawa‑inspired variant. You can swap in any color palette you like:
+Dracula, Tokyo Night, and Catppuccin-Mocha examples are included.
 
-By tweaking per‑chapter frontmatter date, you can choose which pages are
-featured on the landing (for example, as “Latest Posts” or “Recent Notes”). Your
-book's structure stays the same, only your landing page is replaced. (This also
-works with no date listed by using timestamps).
+By adding frontmatter `date` fields to your chapters, you control which pages
+appear on the landing as "Latest Posts" or "Recent Notes". Your book's structure
+stays the same, only the landing page is replaced.
 
-mdBook's build-in theme selector still works, but each base theme is re-skinned
+`mdBook`'s built-in theme selector still works; each base theme is re-skinned
 with Kanagawa variables.
 
 The landing page replaces `index.md` with a configurable side‑by‑side or
 top-over-bottom layout:
 
 ![screenshot1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/landing1.png)
-
 ![screenshot1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/kanagawa-example.png)
+
 **Live Demo / Showcase**
 
 1. [nix-book (Kanagawa default)](https://saylesss88.github.io/)
-
-2. [privacy-book RethinkDNS guide (Tokyo Night overrides)](https://mako088.github.io/android/RethinkDNS_Guide.html)
+2. [privacy-book (Tokyo Night override)](https://mako088.github.io/android/RethinkDNS_Guide.html)
 
 <details>
-<summary> ✔️ Dracula </summary>
+<summary>✔️ Dracula</summary>
 
 ![dracula](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/dracula1.png)
-
 </details>
 
 <details>
-<summary> ✔️ Tokyo-Night </summary>
+<summary>✔️ Tokyo Night</summary>
 
 ![tokyo1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/jj.png)
-
 </details>
 
 <details>
-<summary> ✔️ Catppuccin-Mocha </summary>
+<summary>✔️ Catppuccin Mocha</summary>
 
 ![catppuccin-mocha](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/catppuccin2.png)
-
 </details>
 
-- **Latest Posts**
-- **Recent Notes**
-- **Popular Tags**
-
-The content comes from:
+The landing page cards (Latest Posts, Recent Notes, Popular Tags) are powered
+by:
 
 - [`mdbook-content-collections`](https://crates.io/crates/mdbook-content-collections)
 - [`mdbook-content-loader`](https://crates.io/crates/mdbook-content-loader)
 
 Together they generate `content-collections.json` and expose a
-`window.CONTENT_COLLECTIONS` global that this theme uses to render the cards.
+`window.CONTENT_COLLECTIONS` global that the theme uses to render cards.
 
 <details>
-<summary> ✔️ Popular tags Example </summary>
+<summary>✔️ Popular Tags Example</summary>
 
-> You can click on the tag to bring up the associated chapters.
+> Click a tag to bring up the associated chapters.
 
 ![screenshot2](assets/popular_tags.png)
-
 </details>
 
 <details>
-<summary> ✔️ Content Example </summary>
+<summary>✔️ Content Example</summary>
 
 ![content](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/content1.png)
-
 </details>
 
 <details>
-<summary> ✔️ Code block kanagawa syntax highlighting </summary>
+<summary>✔️ Kanagawa syntax highlighting</summary>
 
 ![kanagawa-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/kanagawa-code2.png)
+</details>
 
-## </details>
+---
 
 ## Installation
 
-This section assumes that you already have `mdbook` installed.
-
 ```bash
 cargo install mdbook-kanagawa-theme
-# Install the themes dependencies
 cargo install mdbook-content-collections
 cargo install mdbook-content-loader
-# You'll probably want to strip the frontmatter
+# Optional: strip YAML frontmatter from rendered output
 # cargo install mdbook-frontmatter-strip
 ```
 
@@ -99,12 +87,54 @@ Version check:
 
 ```bash
 mdbook-kanagawa-theme --version
-mdbook-kanagawa-theme -V
 ```
 
-Add the preprocessor to your `book.toml`. (I've included the other dependencies
-for clarity, you'll still want to set your `site-url` and whatever else your
-site requires):
+---
+
+## File layout
+
+Before looking at configuration, here is where every file lives. The
+`your-book/` prefix is wherever your `book.toml` sits.
+
+```sh
+your-book/
+├── book.toml
+├── src/
+│ ├── SUMMARY.md
+│ ├── index.md ← overwritten on each build
+│ └── assets/ ← palette overrides (copied to book/ on build)
+│ ├── dracula.css ← optional
+│ ├── tokyo-night.css ← optional
+│ └── catppuccin-mocha.css ← optional
+└── theme/
+└── css/
+├── kanagawa-code.css ← generated by preprocessor (Kanagawa highlighting)
+├── dracula-code.css ← optional, you create this
+├── tokyo-night-code.css ← optional, you create this
+└── catppuccin-mocha-code.css ← optional, you create this
+```
+
+Two kinds of CSS files are involved and they do different things:
+
+**Palette files** (`src/assets/*.css`) redefine CSS custom properties (`--bg`,
+`--fg`, `--accent`, etc.) for a specific `mdBook` theme class (always `coal`).
+They are placed in `src/assets/` so `mdBook` copies them to `book/assets/`
+during the build. The preprocessor prepends an `@import` of this file to the
+generated `chrome.css` via `css_import` in `book.toml`. **These override the
+page colors only, not code block syntax tokens.**
+
+**Code highlight files** (`theme/css/*-code.css`) override highlight.js token
+colors for code blocks. They are listed under `additional-css` in `book.toml`
+and loaded after mdBook's bundled highlight theme. Because mdBook's default
+highlight CSS loads last and can win the cascade, all background and color rules
+in these files must use **literal hex values** (not `var(--fg)` or
+`var(--code-bg)`) and `!important`.
+
+---
+
+## Configuration
+
+Add the preprocessor to your `book.toml`:
 
 ```toml
 [book]
@@ -113,7 +143,6 @@ authors = ["Your Name"]
 description = "Docs with a configurable Kanagawa-inspired landing page"
 
 [build]
-# Optional, just to keep builds tidy
 build-dir = "book"
 
 [preprocessor.content-collections]
@@ -123,131 +152,109 @@ renderers = ["html"]
 command = "mdbook-content-loader"
 renderers = ["html"]
 after = ["content-collections"]
-# inject_all = true
 
 [preprocessor.kanagawa-theme]
 renderers = ["html"]
 before = ["content-loader", "content-collections"]
+
 # Landing page text
 landing_title    = "My Docs"
 landing_subtitle = "Notes, posts, and more"
 
-# Column headers
+# Column headers (change to whatever you prefer)
 header_latest = "Latest posts"
 header_notes  = "Recent notes"
 header_tags   = "Popular tags"
 
+# card_layout = "wide"    # wider cards on large screens (default: "compact")
+# support_footer = true   # show "Made with mdbook-kanagawa-theme" in footer
 
-# Use bigger cards and top-over-bottom layout in full-screen view
-# card_layout = "wide"  # or "compact" # side-by-side layout
-
-# Optional: prepend an @import to the generated theme/css/chrome.css
-# Path is relative to the built book root (same as other mdBook theme files).
+# Palette override: path is relative to the built book root.
+# Uncomment exactly one, or omit to use the Kanagawa default palette.
 # css_import = "/assets/dracula.css"
 # css_import = "/assets/tokyo-night.css"
 # css_import = "/assets/catppuccin-mocha.css"
 
-# Optional: if true, the preprocessor will NOT write theme/css/chrome.css
-# (use this if you want to maintain your own chrome.css instead)
-# disable_builtin_css = true
-
-# Optional: prepend an @import to the code theme CSS
-# code_css_import = "theme/custom-code.css"
-
-# Optional: support mdbook-kanagawa-theme in footer
-# support_footer = true # Displays "Made with mdbook-kanagawa-theme" in footer and links to the repo
-# Optionally override to a different link
-# support_footer_href = "https://github.com/wolfpack1/bigDog's-project"
-# support_footer_text = "Made in the U.S.A."
-
+# disable_builtin_css = true  # set if you want to manage chrome.css yourself
 
 [output.html]
-# Do NOT use additional-css for the main theme override.
-# default-theme still controls which theme class is set (rust, coal, navy, …)
-# Kanagawa overrides the "navy" pallette specifically
+# Kanagawa overrides the "navy" palette by default.
+# If you are using a palette override (Dracula, Tokyo Night, Catppuccin),
+# change both of these to "coal", those palettes target the coal theme class.
 default-theme = "navy"
 preferred-dark-theme = "navy"
-# Also add kanagawa syntax highlightiing to the code blocks
-additional-css = ["theme/css/kanagawa-code.css"]
+
+# Do NOT add theme/css/chrome.css here, the preprocessor injects it directly.
+# List only the code highlight file(s) you want:
+additional-css = [
+    "theme/css/kanagawa-code.css",
+    # "theme/css/dracula-code.css",
+    # "theme/css/tokyo-night-code.css",
+    # "theme/css/catppuccin-mocha-code.css",
+]
 ```
 
-You can change the header names to whatever you prefer.
+> **Kanagawa defaults to `navy`.** The palette override themes (Dracula, Tokyo
+> Night, Catppuccin) all target the `coal` theme class. If you use one of those,
+> set `default-theme = "coal"` and `preferred-dark-theme = "coal"`.
 
-On each build, the preprocessor:
+On each build the preprocessor:
 
-1. Overwrites `index.md` with the Kanagawa landing page HTML.
+1. Overwrites `src/index.md` with the Kanagawa landing page HTML.
+2. Writes `theme/css/chrome.css` from a template plus Kanagawa variables.
+3. If `css_import` is set, prepends `@import "<path>";` to that `chrome.css`.
 
-2. Writes `theme/css/chrome.css`, built from a template copy of mdBook’s own
-   `chrome.css` plus Kanagawa variables and extra styles.
-
-You do **not** need `additional-css = ["theme/kanagawa.css"]`; the theme is
-injected by replacing `theme/css/chrome.css` directly. This was required for the
-theme to be respected in the latest mdbook versions.
-
-The `additional-css` shown above is strictly for the code block syntax
-highlighting and is completely optional.
+You do **not** need `additional-css = ["theme/css/chrome.css"]`; that file is
+injected by replacing it directly.
 
 <details>
-<summary> ✔️ card_layout = "wide" </summary>
+<summary>✔️ card_layout = "wide"</summary>
 
-This only changes the cards width on bigger screens, the look is the same for
-phones:
+Only changes card width on larger screens; phones look the same either way.
 
 ![card_layout = "wide"](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/wide.png)
-
 </details>
 
 ---
 
 ## Usage
 
-The theme can use a blank or titled `index.md` for the landing page, you can
-create one by adding the following to your `SUMMARY.md` as the first line:
+The theme can use a blank or titled `index.md` for the landing page. Add one of
+these as the first line of `SUMMARY.md`:
 
 ```md
 [](index.md)
 ```
 
-Or
+or
 
 ```md
 [Introduction](index.md)
 ```
 
+---
+
 ## Kanagawa syntax highlighting (optional)
 
-In addition to the main Kanagawa UI theme, the preprocessor can also generate a
-matching code theme for fenced code blocks. When enabled, it writes:
-
-- `theme/css/chrome.css` – the Kanagawa layout and UI chrome (as before)
-- `theme/css/kanagawa-code.css` – Kanagawa-flavored syntax highlighting
-  targeting mdBook’s default `highlight.js` classes (such as `.hljs`,
-  `.hljs-keyword`, `.hljs-string`, `.hljs-comment`, etc.)
-
-To apply the code theme, add it to your HTML output configuration:
+The preprocessor also generates `theme/css/kanagawa-code.css`, Kanagawa-flavored
+syntax highlighting for `highlight.js` code blocks. To apply it:
 
 ```toml
 [output.html]
 additional-css = ["theme/css/kanagawa-code.css"]
 ```
 
-`chrome.css` is still injected automatically by the preprocessor; only the code
-theme needs to be listed in `additional-css`.
+`chrome.css` is still injected automatically; only the code theme needs to be
+listed in `additional-css`.
 
 ---
 
-### Frontmatter
+## Frontmatter
 
-- Adding the `date` is strongly recommended but not necessary, entries with no
-  `date` fall back to timestamps.
+Adding `date` is strongly recommended but not required, entries with no `date`
+fall back to file timestamps.
 
-**Latest posts**
-
-The "Latest posts" card is tied to the `blog` collection.
-
-This theme works by filtering and sorting your frontmatter. For example, to add
-links/overviews/pics to the "Latest posts" card, your frontmatter would look
-like this:
+**Latest Posts** tied to `collection: "blog"`:
 
 ```yaml
 ---
@@ -260,18 +267,10 @@ draft: false
 ---
 ```
 
-Now the chapter with the above frontmatter will be added to the "Latest posts"
-card.
+If you place an image above the first heading it will appear in the card along
+with the date and overview.
 
-If you place an image above the first header, it will be shown in this card
-along with the date and overview. I may add the author to each chapter shown in
-"Latest posts" in the future but currently the author isn't listed.
-
----
-
-**Recent notes**
-
-The "Recent notes" card is tied to the `notes` collection:
+**Recent Notes** tied to `collection: "notes"`:
 
 ```yaml
 ---
@@ -283,128 +282,96 @@ tags: ["notes", "derivations"]
 ---
 ```
 
-Now this chapter will be added to the "Recent notes" card. This card only lists
-the links rather than the complete overview like "Latest posts" does. The
-frontmatter is fairly forgiving but in this case, `"notes"` must be quoted.
+`"notes"` must be quoted. This card lists links only, without the full overview.
+
+**Popular Tags** populated automatically from the `tags` key. Click a tag to see
+overviews for associated chapters.
+
+Run `mdbook build` and the theme is automatically injected.
 
 ---
 
-**Popular tags**
+## Palette overrides (Dracula, Tokyo Night, Catppuccin)
 
-Popular tags is automatically populated from the `tags` key in the frontmatter.
+All palette overrides follow the same two-file pattern:
 
-You can click the tag to bring up the overviews of the chapters associated with
-the said tag.
+1. **`src/assets/<theme>.css`** redefines CSS custom properties for the `coal`
+   theme class. Placed in `src/assets/` so mdBook copies it to `book/assets/` on
+   build. Referenced via `css_import` in `book.toml`.
+2. **`theme/css/<theme>-code.css`** overrides `highlight.js` token colors.
+   Listed in `additional-css`. Must use **literal hex values** (not CSS
+   variables) and `!important` on all `background` and `color` rules, because
+   `mdBook`'s bundled highlight CSS loads after yours and will win the cascade
+   otherwise.
 
-Run `mdbook build`, and the theme is automatically injected and applied.
+> The palette file only overrides the `coal` theme from the dropdown. All other
+> themes (navy, rust, light) continue to use Kanagawa defaults.
 
 ---
 
-## Overriding the palette (Dracula, Tokyo-Night, etc.)
-
-Dracula is just an example, the idea is to allow overriding to whatever you
-prefer, just change the values in the provided `dracula.css` to what you like.
+### Dracula
 
 <details>
-<summary> ✔️ Dracula Override </summary>
+<summary>✔️ Dracula Override</summary>
 
-You can still override the color palette while keeping the Kanagawa layout.
-
-Create `your-book/src/assets/dracula.css`:
+**Step 1.** Create `your-book/src/assets/dracula.css`:
 
 ```css
 /* src/assets/dracula.css */
-
 :root.coal,
 .coal,
 html.coal,
 body.coal {
-  /* Core page colors */
   --bg: #282a36;
   --bg-alt: #44475a;
   --fg: #f8f8f2;
   --fg-light: #cfcfd9;
-
   --code-bg: #363a4f;
-
-  /* Waves / accent palette */
   --wave-1: #282a36;
   --wave-2: #343746;
   --wave-3: #44475a;
-
-  --accent: #bd93f9; /* main accent (purple) */
+  --accent: #bd93f9;
   --red: #ff5555;
   --blue: #8be9fd;
-
-  /* Sidebar */
   --sidebar-bg: #282a36;
   --sidebar-fg: #f8f8f2;
   --sidebar-non-existant: #6272a4;
   --sidebar-active: #bd93f9;
   --sidebar-spacer: #44475a;
-
-  /* Content links / headings / bold */
-  --links: #8be9fd; /* cyan links */
-  --heading: #bd93f9; /* purple headings */
-  --bold: #ffb86c; /* warm emphasis */
-
-  /* Optional extras */
+  --links: #8be9fd;
+  --heading: #bd93f9;
+  --bold: #ffb86c;
   --quote-bg: #343746;
   --quote-border: #44475a;
   --table-header-bg: #44475a;
   --table-alternate-bg: #343746;
 }
-
-.coal pre code.hljs,
-.coal code.hljs,
-.coal .hljs {
-  background: var(--code-bg) !important;
-  color: var(--fg) !important;
-}
 ```
 
-When you run `mdbook build` this file will be placed in
-`your-book/book/assets/dracula.css`.
-
-**This only overrides the coal color-scheme** from the dropdown. The other
-themes will still use the Kanagawa defaults.
-
-Also override the code blocks with dracula syntax highlighting, create a
-`your-book/theme/css/dracula-code.css`:
+**Step 2.** Create `your-book/theme/css/dracula-code.css`:
 
 ```css
 /* theme/css/dracula-code.css */
-
-/* Base code block look: distinct but still Dracula */
-.hljs {
-  background: #282a36 !important; /* Dracula background */
-  color: #f8f8f2 !important; /* Dracula foreground */
-}
-
+.hljs,
 pre code.hljs,
 code.hljs {
   background: #282a36 !important;
   color: #f8f8f2 !important;
 }
-
-/* Tokens */
 .hljs-keyword,
 .hljs-selector-tag,
 .hljs-type {
   color: #ff79c6 !important; /* pink */
 }
-
 .hljs-string,
 .hljs-attribute,
 .hljs-attr {
   color: #f1fa8c !important; /* yellow */
 }
-
 .hljs-number,
 .hljs-literal {
   color: #bd93f9 !important; /* purple */
 }
-
 .hljs-variable,
 .hljs-tag,
 .hljs-regexp,
@@ -412,21 +379,16 @@ code.hljs {
 .hljs-bullet {
   color: #8be9fd !important; /* cyan */
 }
-
 .hljs-comment {
   color: #6272a4 !important;
   font-style: italic !important;
 }
-
-/* Block code only */
 pre code.hljs {
-  background: var(--code-bg); /* or #24283b if you prefer */
-  color: #c0caf5;
+  background: #282a36 !important;
+  color: #f8f8f2 !important;
   border: 1px solid rgba(0, 0, 0, 0.5);
   border-radius: 6px;
 }
-
-/* Optional: make inline highlighted code look normal */
 :not(pre) > code.hljs {
   background: transparent;
   border: none;
@@ -434,170 +396,107 @@ pre code.hljs {
 }
 ```
 
-And in `book.toml`:
+**Step 3.** Update `book.toml`:
 
 ```toml
 [preprocessor.kanagawa-theme]
-renderers = ["html"]
-before = ["content-loader", "content-collections"]
-
-landing_title = "My mdBook"
-landing_subtitle = "Notes, posts, and more"
-
-# These strings can be changed to whatever you prefer
-header_latest = "Latest posts"
-header_notes = "Recent notes"
-header_tags = "Popular tags"
-
+# ... your other options ...
 css_import = "/assets/dracula.css"
-disable_builtin_css = false
 
 [output.html]
-# automatically switch to the override
 default-theme = "coal"
-additional-css = ["kanagawa-code.css", "dracula-code.css"]
+preferred-dark-theme = "coal"
+additional-css = [
+    "theme/css/kanagawa-code.css",
+    "theme/css/dracula-code.css",
+]
 ```
 
-With this setup:
-
-- mdBook still builds the book as usual, and `mdbook-kanagawa-theme` generates
-  `theme/css/chrome.css` with the Kanagawa layout and variable hooks.​
-
-- The preprocessor adds an `@import "/assets/dracula.css";` (from `css_import`)
-  at the top of that generated `chrome.css`, so your Dracula file runs after the
-  built‑in variable defaults.​
-
-- Because `dracula.css` redefines the same CSS custom properties used by the
-  Kanagawa theme (`--bg`, `--fg`, `--accent`, sidebar colors, etc.), the page
-  keeps the Kanagawa layout and landing page, but all colors for the `coal`
-  theme class come from your Dracula palette instead. Kanagawa provides the
-  layout and default palette.
-
-- The dracula theme only overrides the `coal` theme from the dropdown, this way
-  you can easily switch between the normal themes with dracula and kanagawa
-  added.
-
 ![dracula-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/dracula-code2.png)
-
 </details>
 
 ---
 
-### Tokyo-Night
+### Tokyo Night
 
 <details>
-<summary> ✔️ Tokyo-Night Override </summary>
+<summary>✔️ Tokyo Night Override</summary>
 
-Create `your-book/src/assets/tokyo-night.css`:
+**Step 1.** Create `your-book/src/assets/tokyo-night.css`:
 
 ```css
 /* src/assets/tokyo-night.css */
-
 :root.coal,
 .coal,
 html.coal,
 body.coal {
-  /* Core page colors (Tokyo Night-ish) */
   --bg: #1a1b26;
   --bg-alt: #24283b;
   --fg: #c0caf5;
-  --fg-light: #a9b1d6; /* lighter foreground */
-  --code-bg: #292e42; /* slightly brighter/darker than card */
-
-  /* Waves / accent palette */
-  --wave-1: #1a1b26; /* deepest background */
-  --wave-2: #24283b; /* normal background */
-  --wave-3: #292e42; /* slightly raised panels */
-
-  --accent: #7aa2f7; /* main accent (blue) */
-  --red: #f7768e; /* error / destructive */
-  --blue: #7dcfff; /* secondary accent / info */
-
-  /* Sidebar */
+  --fg-light: #a9b1d6;
+  --code-bg: #292e42;
+  --wave-1: #1a1b26;
+  --wave-2: #24283b;
+  --wave-3: #292e42;
+  --accent: #7aa2f7;
+  --red: #f7768e;
+  --blue: #7dcfff;
   --sidebar-bg: #1a1b26;
   --sidebar-fg: #c0caf5;
-  --sidebar-non-existant: #565f89; /* dimmed items */
+  --sidebar-non-existant: #565f89;
   --sidebar-active: #7aa2f7;
   --sidebar-spacer: #24283b;
-
-  /* Content links / headings / bold */
-  --links: #7dcfff; /* cyan-ish links */
-  --heading: #7aa2f7; /* blue headings */
-  --bold: #ff9e64; /* warm emphasis */
-
-  /* Optional extras */
+  --links: #7dcfff;
+  --heading: #7aa2f7;
+  --bold: #ff9e64;
   --quote-bg: #24283b;
   --quote-border: #292e42;
   --table-header-bg: #292e42;
   --table-alternate-bg: #24283b;
 }
-/* Make code blocks use the dedicated code background on coal theme */
-.coal pre code.hljs,
-.coal code.hljs,
-.coal .hljs {
-  background: var(--code-bg) !important;
-  color: var(--fg) !important;
-}
 ```
 
-Add tokyo-night code block syntax highlighting, create a
-`your-book/theme/css/tokyo-night-code.css`:
+**Step 2.** Create `your-book/theme/css/tokyo-night-code.css`:
 
 ```css
 /* theme/css/tokyo-night-code.css */
-
-/* Base code block look: a bit lighter than page bg */
-.hljs {
-  background: #24283b; /* Tokyo Night panel */
-  color: #c0caf5;
-}
-
+.hljs,
 pre code.hljs,
 code.hljs {
-  background: #24283b; /* Tokyo Night panel */
-  color: #c0caf5;
+  background: #24283b !important;
+  color: #c0caf5 !important;
 }
-
-/* Token colors */
 .hljs-keyword,
 .hljs-selector-tag,
 .hljs-type {
   color: #bb9af7 !important; /* purple */
 }
-
 .hljs-string,
 .hljs-attribute,
 .hljs-attr {
   color: #9ece6a !important; /* green */
 }
-
 .hljs-number,
 .hljs-literal {
   color: #ff9e64 !important; /* orange */
 }
-
 .hljs-variable,
 .hljs-tag,
 .hljs-regexp,
 .hljs-symbol,
 .hljs-bullet {
-  color: #7dcfff !important; /* cyan-ish / accent */
+  color: #7dcfff !important; /* cyan */
 }
-
 .hljs-comment {
   color: #565f89 !important;
   font-style: italic !important;
 }
-
-/* Block code only */
 pre code.hljs {
-  background: var(--code-bg); /* or #24283b if you prefer */
-  color: #c0caf5;
+  background: #24283b !important;
+  color: #c0caf5 !important;
   border: 1px solid rgba(0, 0, 0, 0.5);
   border-radius: 6px;
 }
-
-/* Optional: make inline highlighted code look normal */
 :not(pre) > code.hljs {
   background: transparent;
   border: none;
@@ -605,124 +504,90 @@ pre code.hljs {
 }
 ```
 
-Add this to your `book.toml` along with what's been shown so far. The overrides
-only apply to the `coal` theme from the dropdown:
+**Step 3.** Update `book.toml`:
 
 ```toml
+[preprocessor.kanagawa-theme]
+# ... your other options ...
 css_import = "/assets/tokyo-night.css"
-disable_builtin_css = false
 
 [output.html]
-# automatically switch to the override
 default-theme = "coal"
-additional-css = ["kanagawa-code.css", "tokyo-night-code.css"]
+preferred-dark-theme = "coal"
+additional-css = [
+    "theme/css/kanagawa-code.css",
+    "theme/css/tokyo-night-code.css",
+]
 ```
 
-- The other themes will still use the Kanagawa defaults.
-
 ![tokyo-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/tokyo-night-code2.png)
-
 </details>
 
 ---
 
-## Catppuccin Mocha
+### Catppuccin Mocha
 
 <details>
-<summary> ✔️ Catppuccin-Mocha Override </summary>
+<summary>✔️ Catppuccin Mocha Override</summary>
 
-Create `your-book/src/assets/catppuccin-mocha.css`
+**Step 1.** Create `your-book/src/assets/catppuccin-mocha.css`:
 
 ```css
 /* src/assets/catppuccin-mocha.css */
-
 :root.coal,
 .coal,
 html.coal,
 body.coal {
-  /* Core page colors (Catppuccin Mocha-inspired) */
-  --bg: #1e1e2e; /* base */
-  --bg-alt: #313244; /* surface0 */
-  --fg: #cdd6f4; /* text */
-  --fg-light: #a6adc8; /* subtext1 */
-  --code-bg: #45475a; /* code block bg */
-
-  /* Waves / accent palette */
-  --wave-1: #1e1e2e; /* base */
-  --wave-2: #313244; /* surface0 */
-  --wave-3: #45475a; /* surface1 */
-
-  --accent: #89b4fa; /* blue */
-  --red: #f38ba8; /* red */
-  --blue: #89b4fa; /* blue */
-
-  /* Sidebar */
-  --sidebar-bg: #1e1e2e; /* base */
-  --sidebar-fg: #cdd6f4; /* text */
-  --sidebar-non-existant: #6c7086; /* overlay1 */
-  --sidebar-active: #89b4fa; /* blue */
-  --sidebar-spacer: #313244; /* surface0 */
-
-  /* Content links / headings / bold */
-  --links: #89b4fa; /* blue links */
-  --heading: #cba6f7; /* mauve headings */
-  --bold: #f9e2af; /* yellow emphasis */
-
-  /* Optional extras */
-  --quote-bg: #313244; /* surface0 */
-  --quote-border: #45475a; /* surface1 */
-  --table-header-bg: #45475a; /* surface1 */
-  --table-alternate-bg: #313244; /* surface0 */
-}
-
-.coal pre code.hljs,
-.coal code.hljs,
-.coal .hljs {
-  background: var(--code-bg) !important;
-  color: var(--fg) !important;
+  --bg: #1e1e2e;
+  --bg-alt: #313244;
+  --fg: #cdd6f4;
+  --fg-light: #a6adc8;
+  --code-bg: #45475a;
+  --wave-1: #1e1e2e;
+  --wave-2: #313244;
+  --wave-3: #45475a;
+  --accent: #89b4fa;
+  --red: #f38ba8;
+  --blue: #89b4fa;
+  --sidebar-bg: #1e1e2e;
+  --sidebar-fg: #cdd6f4;
+  --sidebar-non-existant: #6c7086;
+  --sidebar-active: #89b4fa;
+  --sidebar-spacer: #313244;
+  --links: #89b4fa;
+  --heading: #cba6f7;
+  --bold: #f9e2af;
+  --quote-bg: #313244;
+  --quote-border: #45475a;
+  --table-header-bg: #45475a;
+  --table-alternate-bg: #313244;
 }
 ```
 
-Add this to your `book.toml` along with what's been shown so far. The overrides
-only apply to the `coal` theme from the dropdown:
-
-Also apply catppuccin-mocha syntax highlighting for code blocks:
-
-Create `your-book/theme/css/catppuccin-mocha-code.css`:
+**Step 2.** Create `your-book/theme/css/catppuccin-mocha-code.css`:
 
 ```css
 /* theme/css/catppuccin-mocha-code.css */
-
-/* Base code block look: a bit lighter than page bg */
-.hljs {
-  background: #313244; /* surface0 */
-  color: #cdd6f4;
-}
-
+.hljs,
 pre code.hljs,
 code.hljs {
-  background: #313244; /* surface0 */
-  color: #cdd6f4;
+  background: #313244 !important;
+  color: #cdd6f4 !important;
 }
-
-/* Tokens */
 .hljs-keyword,
 .hljs-selector-tag,
 .hljs-type {
   color: #cba6f7 !important; /* mauve */
 }
-
 .hljs-string,
 .hljs-attribute,
 .hljs-attr {
   color: #a6e3a1 !important; /* green */
 }
-
 .hljs-number,
 .hljs-literal {
   color: #fab387 !important; /* peach */
 }
-
 .hljs-variable,
 .hljs-tag,
 .hljs-regexp,
@@ -730,21 +595,16 @@ code.hljs {
 .hljs-bullet {
   color: #f38ba8 !important; /* red/pink */
 }
-
 .hljs-comment {
-  color: #585b70 !important;
+  color: #7f849c !important;
   font-style: italic !important;
 }
-
-/* Block code only */
 pre code.hljs {
-  background: var(--code-bg); /* or #24283b if you prefer */
-  color: #c0caf5;
+  background: #45475a !important;
+  color: #cdd6f4 !important;
   border: 1px solid rgba(0, 0, 0, 0.5);
   border-radius: 6px;
 }
-
-/* Optional: make inline highlighted code look normal */
 :not(pre) > code.hljs {
   background: transparent;
   border: none;
@@ -752,46 +612,41 @@ pre code.hljs {
 }
 ```
 
+**Step 3.** Update `book.toml`:
+
 ```toml
+[preprocessor.kanagawa-theme]
+# ... your other options ...
 css_import = "/assets/catppuccin-mocha.css"
-disable_builtin_css = false
 
 [output.html]
-# automatically switch to the override
 default-theme = "coal"
+preferred-dark-theme = "coal"
 additional-css = [
-	"theme/css/kanagawa-code.css",
-	"theme/css/catppuccin-mocha-code.css",
+    "theme/css/kanagawa-code.css",
+    "theme/css/catppuccin-mocha-code.css",
 ]
 ```
 
-- `"theme/css/kanagawa-code.css"` isn't required.
-
-- The other themes continue to use the Kanagawa palette.
-
 ![mocha-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/catppuccin-code2.png)
-
 </details>
 
 ---
 
 ## Light/Dark and default-theme behavior
 
-Because this crate replaces `theme/css/chrome.css`, it effectively owns the
-visual theme for all built‑in modes (`light`, `rust`, `coal`, `navy`). The
-mdBook theme dropdown and your `default-theme` / `preferred-dark-theme` still
-control which class is applied to the page, but the palette for each of those
-classes is defined by the Kanagawa (or Dracula/Tokyo-Night/Catppuccin
-overridden) variables.
+Because this crate replaces `theme/css/chrome.css`, it owns the visual theme for
+all built‑in modes (`light`, `rust`, `coal`, `navy`). The `mdBook` theme
+dropdown and `default-theme` / `preferred-dark-theme` still control which class
+is applied to the page, but the palette for each class is defined by the
+Kanagawa (or overridden) variables.
 
 ---
 
-## Stripping the Frontmatter
+## Stripping frontmatter
 
-mdBook does not parse or strip YAML frontmatter, so the raw block (e.g. any YAML
-keys like `title:`, `date:`, etc.) appears in the HTML.
-
-To avoid this, you can use:
+`mdBook` does not parse or strip YAML frontmatter, so the raw block appears in
+the rendered HTML. To suppress it:
 
 - [mdbook-frontmatter-strip](https://crates.io/crates/mdbook-frontmatter-strip)
 
