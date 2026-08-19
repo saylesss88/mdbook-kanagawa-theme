@@ -520,7 +520,7 @@ additional-css = [
 ]
 ```
 
-![tokyo-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/tokyo-night-code2.png)
+![tokyo-code](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/tokyo-night-syntaxhighlighting.png)
 </details>
 
 ---
