@@ -1,7 +1,7 @@
 # mdbook-kanagawa-theme
 
-`mdbook-kanagawa-theme` is a Kanagawa‑inspired visual theme for the mdBook HTML
-renderer. It ships in two modes controlled by a Cargo feature flag:
+`mdbook-kanagawa-theme` is a Kanagawa‑inspired visual theme for the `mdBook`
+HTML renderer. It ships in two modes controlled by a Cargo feature flag:
 
 | Mode                 | Install                                               | What you get                                                                                                                                                                                                                                                           |
 | :------------------- | :---------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -19,6 +19,8 @@ flag.
 
 `mdBook`'s built-in theme selector still works; each base theme is re-skinned
 with Kanagawa variables.
+
+**Blog-like Landing Examples**
 
 The blog landing page replaces `index.md` with a configurable side‑by‑side or
 top-over-bottom layout:
@@ -190,9 +192,11 @@ additional-css = [
     "theme/css/kanagawa-code.css",
 ]
 ```
+
 **Blog landing page** (`cargo install mdbook-kanagawa-theme --features blog`)
 
-Requires `mdbook-content-collections` and `mdbook-content-loader` to also be installed. The preprocessor order matters:
+Requires `mdbook-content-collections` and `mdbook-content-loader` to also be
+installed. The preprocessor order matters:
 
 ```toml
 [book]
