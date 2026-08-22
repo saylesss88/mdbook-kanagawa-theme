@@ -1,8 +1,6 @@
 # mdbook-kanagawa-theme
 
-mdbook-kanagawa-theme
-
-mdbook-kanagawa-theme is a Kanagawa‑inspired visual theme for the mdBook HTML
+`mdbook-kanagawa-theme` is a Kanagawa‑inspired visual theme for the mdBook HTML
 renderer. It ships in two modes controlled by a Cargo feature flag:
 
 | Mode                 | Install                                               | What you get                                                                                                                                                                                                                                                           |
@@ -14,6 +12,10 @@ In both modes the preprocessor writes `theme/css/chrome.css` (Kanagawa palette)
 and `theme/css/kanagawa-code.css` (syntax highlighting). You can swap in
 Dracula, Tokyo Night, or Catppuccin-Mocha palettes without changing the feature
 flag.
+
+**Default Example `cargo install mdbook-kanagawa-theme`**
+
+![screenshot1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/default.png)
 
 `mdBook`'s built-in theme selector still works; each base theme is re-skinned
 with Kanagawa variables.
