@@ -1,8 +1,10 @@
+use std::fs;
+
 use crate::config::KanagawaConfig;
 use crate::css;
+#[cfg(feature = "blog")]
 use crate::landing;
 use mdbook_preprocessor::{PreprocessorContext, book::Book, book::BookItem};
-use std::fs;
 /// mdBook preprocessor that injects a Kanagawa-themed landing page
 /// and wires Kanagawa CSS into the generated HTML output.
 pub struct KanagawaTheme;
@@ -31,6 +33,13 @@ impl KanagawaTheme {
             .unwrap_or_default()
     }
 
+    /// Replace the `index.md` chapter with the blog landing page HTML.
+    ///
+    /// Only compiled when the `blog` feature is enabled. Requires
+    /// `mdbook-content-collections` and `mdbook-content-loader` to be
+    /// configured in the same book so that `window.CONTENT_COLLECTIONS`
+    /// is present at runtime.
+    #[cfg(feature = "blog")]
     pub fn inject_landing_page(book: &mut Book, cfg: &KanagawaConfig) {
         let mut injected = false;
         book.for_each_mut(|item| {
