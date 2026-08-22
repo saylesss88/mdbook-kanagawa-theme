@@ -1,6 +1,6 @@
 [package]
 name = "mdbook-kanagawa-theme"
-version = "1.2.7"
+version = "1.3.0"
 edition = "2024"
 authors = ["T. Sawyer <saylesss88@github.com>"]
 license = "Apache-2.0"
