@@ -50,23 +50,29 @@ pub struct KanagawaConfig {
 }
 
 // --- Helper functions for Serde defaults ---
+fn default_footer_text() -> String {
+    "Made with mdbook-kanagawa-theme".into()
+}
+
+#[cfg(feature = "blog")]
 fn default_title() -> String {
     "mdTheme".into()
 }
+#[cfg(feature = "blog")]
 fn default_subtitle() -> String {
     "A dope landing powered by rust".into()
 }
+#[cfg(feature = "blog")]
 fn default_latest() -> String {
     "Latest Posts".into()
 }
+#[cfg(feature = "blog")]
 fn default_notes() -> String {
     "Recent Notes".into()
 }
+#[cfg(feature = "blog")]
 fn default_tags() -> String {
     "Popular Tags".into()
-}
-fn default_footer_text() -> String {
-    "Made with mdbook-kanagawa-theme".into()
 }
 
 // --- Implement Default manually to use these same helpers ---
@@ -109,6 +115,7 @@ impl Preprocessor for KanagawaTheme {
     /// * optionally write `theme/css/chrome.css` and `theme/css/kanagawa-code.css`.
     fn run(&self, ctx: &PreprocessorContext, mut book: Book) -> Result<Book, Error> {
         let cfg = Self::read_config(ctx);
+        #[cfg(feature = "blog")]
         Self::inject_landing_page(&mut book, &cfg);
         Self::write_chrome_css(ctx, &cfg);
         Self::write_code_css(ctx, &cfg);
