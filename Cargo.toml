@@ -13,6 +13,14 @@ homepage = "https://github.com/saylesss88/mdbook-kanagawa-theme"
 documentation = "https://docs.rs/mdbook-kanagawa-theme"
 exclude = [".github/*", ".gitignore", "book/*"]
 
+[features]
+# Default: just the Kanagawa CSS theme injected into any standard mdBook.
+# Enable `blog` to get the interactive landing page that reads from
+# window.CONTENT_COLLECTIONS (requires mdbook-content-collections +
+# mdbook-content-loader to be configured alongside this preprocessor).
+default = []
+blog = []
+
 [[bin]]
 name = "mdbook-kanagawa-theme"
 path = "src/bin/mdbook-kanagawa-theme.rs"
