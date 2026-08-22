@@ -1,19 +1,24 @@
 # mdbook-kanagawa-theme
 
-`mdbook-kanagawa-theme` provides an interactive, **blog‑like landing page** and
-a **full visual theme override** for the HTML renderer. It does not replace
-`mdBook`'s HTML backend, but it replaces the default `theme/css/chrome.css` with
-a Kanagawa‑inspired variant. You can swap in any color palette you like:
-Dracula, Tokyo Night, and Catppuccin-Mocha examples are included.
+mdbook-kanagawa-theme
 
-By adding frontmatter `date` fields to your chapters, you control which pages
-appear on the landing as "Latest Posts" or "Recent Notes". Your book's structure
-stays the same, only the landing page is replaced.
+mdbook-kanagawa-theme is a Kanagawa‑inspired visual theme for the mdBook HTML
+renderer. It ships in two modes controlled by a Cargo feature flag:
+
+| Mode                 | Install                                               | What you get                                                                                                                                                                                                                                                           |
+| :------------------- | :---------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Theme only (default) | `cargo install mdbook-kanagawa-theme`                 | Kanagawa CSS injected into any standard mdBook. No landing page, no extra preprocessors required.                                                                                                                                                                      |
+| Blog landing         | `cargo install mdbook-kanagawa-theme --features blog` | Everything above plus an interactive landing page (Latest Posts, Recent Notes, Popular Tags) powered by [mdbook-content-collections](https://crates.io/crates/mdbook-content-collections) and [mdbook-content-loader](https://crates.io/crates/mdbook-content-loader). |
+
+In both modes the preprocessor writes `theme/css/chrome.css` (Kanagawa palette)
+and `theme/css/kanagawa-code.css` (syntax highlighting). You can swap in
+Dracula, Tokyo Night, or Catppuccin-Mocha palettes without changing the feature
+flag.
 
 `mdBook`'s built-in theme selector still works; each base theme is re-skinned
 with Kanagawa variables.
 
-The landing page replaces `index.md` with a configurable side‑by‑side or
+The blog landing page replaces `index.md` with a configurable side‑by‑side or
 top-over-bottom layout:
 
 ![screenshot1](https://raw.githubusercontent.com/saylesss88/mdbook-kanagawa-theme/main/assets/landing1.png)
@@ -45,11 +50,14 @@ top-over-bottom layout:
 The landing page cards (Latest Posts, Recent Notes, Popular Tags) are powered
 by:
 
-- [`mdbook-content-collections`](https://crates.io/crates/mdbook-content-collections)
-- [`mdbook-content-loader`](https://crates.io/crates/mdbook-content-loader)
+- [`mdbook-content-collections`](https://crates.io/crates/mdbook-content-collections):
+  walks your `src/` tree, parses frontmatter, and writes
+  `content-collections.json`.
+- [`mdbook-content-loader`](https://crates.io/crates/mdbook-content-loader):
+  injects that JSON as `window.CONTENT_COLLECTIONS` into every page.
 
-Together they generate `content-collections.json` and expose a
-`window.CONTENT_COLLECTIONS` global that the theme uses to render cards.
+Without `--features blog` these two preprocessors are not needed and the theme
+works as a pure CSS override on any ordinary mdBook.
 
 <details>
 <summary>✔️ Popular Tags Example</summary>
@@ -75,13 +83,24 @@ Together they generate `content-collections.json` and expose a
 
 ## Installation
 
+Theme only (CSS theming for any standard mdBook)
+
 ```bash
 cargo install mdbook-kanagawa-theme
+```
+
+```bash
+cargo install mdbook-kanagawa-theme --features blog
 cargo install mdbook-content-collections
 cargo install mdbook-content-loader
 # Optional: strip YAML frontmatter from rendered output
 # cargo install mdbook-frontmatter-strip
 ```
+
+`--features` blog enables the interactive landing page that reads from
+`window.CONTENT_COLLECTIONS`. The two companion preprocessors must also be
+installed and configured in `book.toml` (see the Blog configuration section
+below).
 
 Version check:
 
@@ -134,7 +153,44 @@ in these files must use **literal hex values** (not `var(--fg)` or
 
 ## Configuration
 
-Add the preprocessor to your `book.toml`:
+**Theme only** (`cargo install mdbook-kanagawa-theme`)
+
+Minimal `book.toml`: no content-collections preprocessors required:
+
+```toml
+[book]
+title = "My Kanagawa Book"
+authors = ["Your Name"]
+
+[build]
+build-dir = "book"
+
+[preprocessor.kanagawa-theme]
+renderers = ["html"]
+
+# Optional: show a small footer link on every page
+# support_footer = true
+# support_footer_href = "https://github.com/you/your-book"
+# support_footer_text = "Built with mdbook-kanagawa-theme"
+
+# Palette override (uncomment one):
+# css_import = "/assets/dracula.css"
+# css_import = "/assets/tokyo-night.css"
+# css_import = "/assets/catppuccin-mocha.css"
+
+# disable_builtin_css = true  # manage chrome.css yourself
+
+[output.html]
+default-theme = "navy"
+preferred-dark-theme = "navy"
+
+additional-css = [
+    "theme/css/kanagawa-code.css",
+]
+```
+**Blog landing page** (`cargo install mdbook-kanagawa-theme --features blog`)
+
+Requires `mdbook-content-collections` and `mdbook-content-loader` to also be installed. The preprocessor order matters:
 
 ```toml
 [book]
@@ -407,7 +463,7 @@ css_import = "/assets/dracula.css"
 default-theme = "coal"
 preferred-dark-theme = "coal"
 additional-css = [
-    "theme/css/kanagawa-code.css",
+    # "theme/css/kanagawa-code.css",
     "theme/css/dracula-code.css",
 ]
 ```
@@ -515,7 +571,7 @@ css_import = "/assets/tokyo-night.css"
 default-theme = "coal"
 preferred-dark-theme = "coal"
 additional-css = [
-    "theme/css/kanagawa-code.css",
+    # "theme/css/kanagawa-code.css",
     "theme/css/tokyo-night-code.css",
 ]
 ```
@@ -623,7 +679,7 @@ css_import = "/assets/catppuccin-mocha.css"
 default-theme = "coal"
 preferred-dark-theme = "coal"
 additional-css = [
-    "theme/css/kanagawa-code.css",
+    # "theme/css/kanagawa-code.css",
     "theme/css/catppuccin-mocha-code.css",
 ]
 ```
